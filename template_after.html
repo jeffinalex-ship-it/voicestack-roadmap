@@ -1,0 +1,1217 @@
+
+
+const AREA_CFG = {
+  "Phone System":      {cls:"tag-area-phone", color:"#3b82f6", emoji:"âï¸"},
+  "Call Intelligence": {cls:"tag-area-ci",   color:"#8b5cf6", emoji:"ð§ "},
+  "CRM":               {cls:"tag-area-crm",  color:"#f59e0b", emoji:"ð"},
+  "AI Agents":         {cls:"tag-area-ai",   color:"#ef4444", emoji:"ð¤"},
+  "Platform":          {cls:"tag-area-plat", color:"#10b981", emoji:"âï¸"},
+  "Other":             {cls:"tag-area-other",color:"#94a3b8", emoji:"ð¦"}
+};
+const Q_ORDER = ["Q1","Q2","Q3","Q4","Ongoing","TBD"];
+const Q_LABELS = {"Q1":"Q1 2026","Q2":"Q2 2026","Q3":"Q3 2026","Q4":"Q4 2026","Ongoing":"Ongoing","TBD":"To Be Scheduled"};
+const STATUS_CFG = {
+  "Deployed":    {cls:"deployed", color:"#10b981"},
+  "In Progress": {cls:"progress", color:"#3b82f6"},
+  "Backlog":     {cls:"backlog",  color:"#f59e0b"},
+  "On Hold":     {cls:"hold",     color:"#ef4444"},
+  "Ongoing":     {cls:"ongoing",  color:"#8b5cf6"},
+  "TBD":         {cls:"tbd",      color:"#64748b"}
+};
+const VERTICALS = ["Dental","PT","Optom","Vet"];
+const VERT_EMOJI = {"Dental":"ð¦·","PT":"ð§","Optom":"ðï¸","Vet":"ð¶"};
+const VERT_LABEL = {"Dental":"Dental","PT":"Physical Therapy","Optom":"Optometry","Vet":"Veterinary"};
+
+// State
+let state = {
+  activeQuarter: "Q2",
+  filterStatus: "all",
+  filterArea: "all",
+  searchTerm: ""
+};
+
+function escHTML(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+function statusClass(s){return (STATUS_CFG[s]||STATUS_CFG.TBD).cls;}
+
+// ============ HERO STATS ============
+function renderHeroStats(){
+  const total = DATA.length;
+  const dep = DATA.filter(d=>d.status==="Deployed").length;
+  const ip = DATA.filter(d=>d.status==="In Progress").length;
+  const bl = DATA.filter(d=>d.status==="Backlog").length;
+  animateNumber("heroTotal", total);
+  animateNumber("heroDeployed", dep);
+  animateNumber("heroProgress", ip);
+  animateNumber("heroBacklog", bl);
+}
+function animateNumber(id, target){
+  const el = document.getElementById(id);
+  let cur = 0;
+  const step = Math.max(1, Math.ceil(target/40));
+  const t = setInterval(()=>{
+    cur += step;
+    if(cur >= target){ cur = target; clearInterval(t); }
+    el.textContent = cur;
+  }, 25);
+}
+
+// ============ UNIVERSAL SEARCH ============
+let usFocusIdx = -1;
+let usCurrentResults = [];
+
+function runUniversalSearch(){
+  const inp = document.getElementById("universalSearch");
+  const dd = document.getElementById("usDropdown");
+  const term = (inp.value||"").toLowerCase().trim();
+  usFocusIdx = -1;
+
+  if(!term){
+    // show recently/popular suggestions
+    usCurrentResults = DATA.filter(d=>d.status==="In Progress").slice(0,6);
+    if(usCurrentResults.length === 0) usCurrentResults = DATA.slice(0,6);
+    renderUsDropdown(true);
+    dd.classList.add("show");
+    return;
+  }
+
+  const results = DATA.map((d,i)=>{
+    const hay = [d.name, d.desc, d.area, d.type, d.vertical, d.geo, d.status, d.quarter].filter(Boolean).join(" ").toLowerCase();
+    if(!hay.includes(term)) return null;
+    // score: name match > desc match > others
+    let score = 0;
+    if((d.name||"").toLowerCase().includes(term)) score += 100;
+    if((d.name||"").toLowerCase().startsWith(term)) score += 50;
+    if((d.desc||"").toLowerCase().includes(term)) score += 30;
+    if((d.area||"").toLowerCase().includes(term)) score += 10;
+    return {d, i, score};
+  }).filter(Boolean).sort((a,b)=>b.score-a.score);
+
+  usCurrentResults = results;
+  renderUsDropdown(false, term);
+  dd.classList.add("show");
+}
+
+function renderUsDropdown(isSuggestion, term){
+  const dd = document.getElementById("usDropdown");
+  const showResults = usCurrentResults.slice(0, 10);
+
+  if(usCurrentResults.length === 0){
+    dd.innerHTML = `<div class="usd-empty"><div class="usd-empty-icon">&#128269;</div>No matches found for "<strong style="color:var(--vs-text)">${escHTML(term||"")}</strong>"<div style="margin-top:0.5rem;font-size:0.75rem;">Try keywords like "outbound", "CRM", "dental", or "deployed"</div></div>`;
+    return;
+  }
+
+  let html = `<div class="usd-header">`;
+  if(isSuggestion){
+    html += `<span>Suggested &mdash; in active development</span>`;
+  } else {
+    html += `<span><strong>${usCurrentResults.length}</strong> match${usCurrentResults.length===1?'':'es'} for "${escHTML(term||"")}"</span>`;
+    html += `<button class="usd-action" onclick="usSeeAllInTimeline()">View all in Timeline &rarr;</button>`;
+  }
+  html += `</div>`;
+
+  showResults.forEach((r, idx)=>{
+    const d = isSuggestion ? r : r.d;
+    const i = isSuggestion ? DATA.indexOf(d) : r.i;
+    const acfg = AREA_CFG[d.area] || AREA_CFG.Other;
+    const sCls = statusClass(d.status);
+    const name = isSuggestion ? escHTML(d.name) : highlight(d.name, term);
+    const desc = isSuggestion ? escHTML(d.desc||"") : highlight(d.desc||"", term);
+    html += `<div class="usd-result" data-idx="${idx}" onclick="usOpenResult(${i})" onmousemove="usFocus(${idx})">
+      <div class="usd-r-top">
+        <div class="usd-r-name">${name}</div>
+        <span class="status-badge ${sCls}">${escHTML(d.status||"TBD")}</span>
+      </div>
+      ${desc?`<div class="usd-r-desc">${desc}</div>`:""}
+      <div class="usd-r-meta">
+        <span class="tag ${acfg.cls}">${escHTML(d.area||"Other")}</span>
+        ${d.quarter?`<span class="tag tag-quarter">${escHTML(Q_LABELS[d.quarter]||d.quarter)}</span>`:""}
+        ${d.vertical?`<span class="tag tag-vertical">${escHTML(d.vertical)}</span>`:""}
+        ${d.geo?`<span class="tag tag-geo">${escHTML(d.geo)}</span>`:""}
+      </div>
+    </div>`;
+  });
+
+  if(usCurrentResults.length > 10){
+    html += `<div class="usd-footer"><span>Showing top 10 of ${usCurrentResults.length}</span><button class="usd-action" onclick="usSeeAllInTimeline()">See all &rarr;</button></div>`;
+  } else {
+    html += `<div class="usd-footer"><span><kbd>&uarr;&darr;</kbd> navigate &middot; <kbd>&crarr;</kbd> open &middot; <kbd>esc</kbd> close</span></div>`;
+  }
+  dd.innerHTML = html;
+}
+
+function highlight(text, term){
+  if(!text) return "";
+  if(!term) return escHTML(text);
+  const safe = escHTML(text);
+  const re = new RegExp("("+escapeRegex(term)+")", "gi");
+  return safe.replace(re, "<mark>$1</mark>");
+}
+function escapeRegex(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+function usOpenResult(dataIdx){
+  closeUsDropdown();
+  document.getElementById("universalSearch").blur();
+  openModal(dataIdx);
+}
+function usFocus(idx){
+  usFocusIdx = idx;
+  document.querySelectorAll(".usd-result").forEach((el,i)=>{
+    el.classList.toggle("focused", i===idx);
+  });
+}
+function universalSearchKey(e){
+  const dd = document.getElementById("usDropdown");
+  if(!dd.classList.contains("show")) return;
+  const items = document.querySelectorAll(".usd-result");
+  if(e.key === "ArrowDown"){
+    e.preventDefault();
+    usFocusIdx = Math.min(usFocusIdx+1, items.length-1);
+    usFocus(usFocusIdx);
+    items[usFocusIdx]?.scrollIntoView({block:"nearest"});
+  } else if(e.key === "ArrowUp"){
+    e.preventDefault();
+    usFocusIdx = Math.max(usFocusIdx-1, 0);
+    usFocus(usFocusIdx);
+    items[usFocusIdx]?.scrollIntoView({block:"nearest"});
+  } else if(e.key === "Enter"){
+    e.preventDefault();
+    if(usFocusIdx >= 0){
+      const r = usCurrentResults[usFocusIdx];
+      const d = r.d || r;
+      const i = r.i !== undefined ? r.i : DATA.indexOf(d);
+      usOpenResult(i);
+    } else if(usCurrentResults.length > 0){
+      usSeeAllInTimeline();
+    }
+  } else if(e.key === "Escape"){
+    closeUsDropdown();
+    document.getElementById("universalSearch").blur();
+  }
+}
+function usSeeAllInTimeline(){
+  const term = document.getElementById("universalSearch").value;
+  closeUsDropdown();
+  document.getElementById("universalSearch").blur();
+  jumpToTimeline({search: term});
+}
+function closeUsDropdown(){
+  document.getElementById("usDropdown").classList.remove("show");
+}
+// Close dropdown when clicking outside
+document.addEventListener("click", e=>{
+  if(!e.target.closest(".universal-search")) closeUsDropdown();
+});
+// Cmd/Ctrl + K to focus
+document.addEventListener("keydown", e=>{
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k"){
+    e.preventDefault();
+    document.getElementById("universalSearch").focus();
+  } else if(e.key === "/" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA"){
+    e.preventDefault();
+    document.getElementById("universalSearch").focus();
+  }
+});
+// Detect platform for shortcut hint
+(function(){
+  const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+  const sc = document.getElementById("usSc");
+  if(sc && !isMac) sc.innerHTML = "Ctrl K";
+})();
+
+// ============ NAV ============
+function navigateTo(id, btn){
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  const el = document.getElementById(id);
+  if(el){
+    const offset = 70;
+    const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({top, behavior:"smooth"});
+  }
+}
+
+// ============ JUMP-TO-VIEW HELPERS ============
+// Apply filters to the timeline section, optionally clear search, then scroll there.
+function jumpToTimeline(opts){
+  opts = opts || {};
+  // Clear search
+  const si = document.getElementById("searchInput");
+  if(si){ si.value = opts.search || ""; }
+  state.searchTerm = si ? si.value : "";
+  state.filterStatus = opts.status || "all";
+  state.filterArea = opts.area || "all";
+
+  // Sync filter chips
+  document.querySelectorAll('.filter-chip[data-filter="status"]').forEach(b=>{
+    b.classList.toggle("active", b.dataset.value === state.filterStatus);
+  });
+  document.querySelectorAll('.filter-chip[data-filter="area"]').forEach(b=>{
+    b.classList.toggle("active", b.dataset.value === state.filterArea);
+  });
+  renderTimeline();
+  scrollToId("timeline");
+}
+function jumpToQuarter(q){
+  if(q && Q_ORDER.includes(q)) setQuarter(q);
+  scrollToId("quarterly-view");
+}
+function jumpToVerticals(vert){
+  scrollToId("verticals");
+  if(vert) setTimeout(()=>openVertDrilldown(vert), 400);
+}
+function scrollToId(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const offset = 70;
+  const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+  window.scrollTo({top, behavior:"smooth"});
+}
+
+// ============ QUARTER VIEW ============
+function renderQuarterNav(){
+  const nav = document.getElementById("quarterNav");
+  const counts = {};
+  DATA.forEach(d=>{
+    const q = d.quarter || "TBD";
+    counts[q] = (counts[q]||0)+1;
+  });
+  let html = "";
+  Q_ORDER.forEach(q=>{
+    if(!counts[q]) return;
+    const isActive = q === state.activeQuarter;
+    const isCurrent = q === "Q2";
+    html += `<button class="quarter-tab ${isActive?'active':''} ${isCurrent?'current':''}" onclick="setQuarter('${q}')">${Q_LABELS[q]}<span class="tab-count">${counts[q]}</span></button>`;
+  });
+  nav.innerHTML = html;
+}
+function setQuarter(q){
+  state.activeQuarter = q;
+  renderQuarterNav();
+  renderQuarterContent();
+}
+function renderQuarterContent(){
+  const container = document.getElementById("quarterViewContent");
+  const items = DATA.filter(d=>(d.quarter||"TBD") === state.activeQuarter);
+  if(!items.length){
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">ð­</div><p>No items for this quarter.</p></div>`;
+    return;
+  }
+  // group by status
+  const groups = {};
+  items.forEach(d=>{
+    const s = d.status || "TBD";
+    if(!groups[s]) groups[s] = [];
+    groups[s].push(d);
+  });
+  const order = ["Deployed","In Progress","Backlog","On Hold","Ongoing","TBD"];
+  let html = "";
+  order.forEach(s=>{
+    if(!groups[s]) return;
+    const cfg = STATUS_CFG[s] || STATUS_CFG.TBD;
+    html += `<div class="qv-section">
+      <div class="qv-section-header">
+        <span class="qv-section-badge" style="background:${cfg.color}">${s}</span>
+        <span class="qv-section-line"></span>
+        <span class="qv-section-count">${groups[s].length} item${groups[s].length>1?'s':''}</span>
+      </div>
+      <div class="timeline-items">${groups[s].map(itemCard).join("")}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ============ CARD ============
+function itemCard(d){
+  const idx = DATA.indexOf(d);
+  const acfg = AREA_CFG[d.area] || AREA_CFG.Other;
+  const sCls = statusClass(d.status);
+  const tags = [];
+  tags.push(`<span class="tag ${acfg.cls}">${escHTML(d.area||"Other")}</span>`);
+  if(d.quarter) tags.push(`<span class="tag tag-quarter">${escHTML(Q_LABELS[d.quarter]||d.quarter)}</span>`);
+  if(d.geo) tags.push(`<span class="tag tag-geo">${escHTML(d.geo)}</span>`);
+  if(d.vertical) tags.push(`<span class="tag tag-vertical">${escHTML(d.vertical)}</span>`);
+  return `<div class="timeline-item" onclick="openModal(${idx})">
+    <div class="item-header">
+      <div class="item-title">${escHTML(d.name)}</div>
+      <span class="status-badge ${sCls}">${escHTML(d.status||"TBD")}</span>
+    </div>
+    ${d.desc?`<div class="item-desc">${escHTML(d.desc)}</div>`:""}
+    <div class="item-tags">${tags.join("")}</div>
+  </div>`;
+}
+
+// ============ MODAL ============
+function openModal(idx){
+  const d = DATA[idx];
+  if(!d) return;
+  document.getElementById("modalTitle").textContent = d.name;
+  const sCls = statusClass(d.status);
+  let html = "";
+  html += `<div class="modal-field"><div class="field-label">Status</div><div class="field-value"><span class="status-badge ${sCls}">${escHTML(d.status||"TBD")}</span></div></div>`;
+  html += `<div class="modal-field"><div class="field-label">Area</div><div class="field-value">${escHTML(d.area||"-")}</div></div>`;
+  html += `<div class="modal-field"><div class="field-label">Quarter</div><div class="field-value">${escHTML(Q_LABELS[d.quarter]||d.quarter||"TBD")}</div></div>`;
+  if(d.desc) html += `<div class="modal-field"><div class="field-label">Description</div><div class="field-value">${escHTML(d.desc)}</div></div>`;
+  if(d.type) html += `<div class="modal-field"><div class="field-label">Type</div><div class="field-value">${escHTML(d.type)}</div></div>`;
+  if(d.geo) html += `<div class="modal-field"><div class="field-label">Geography</div><div class="field-value">${escHTML(d.geo)}</div></div>`;
+  if(d.vertical) html += `<div class="modal-field"><div class="field-label">Vertical</div><div class="field-value">${escHTML(d.vertical)}</div></div>`;
+  document.getElementById("modalBody").innerHTML = html;
+  document.getElementById("itemModal").classList.add("show");
+}
+function closeModal(){
+  document.getElementById("itemModal").classList.remove("show");
+}
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeModal(); });
+
+// ============ EXEC SUMMARY KPIs & PROGRESS ============
+function renderExecKpis(){
+  const counts = {};
+  DATA.forEach(d=>{
+    const a = d.area || "Other";
+    counts[a] = (counts[a]||0)+1;
+  });
+  const order = ["Phone System","Call Intelligence","CRM","AI Agents","Platform","Other"];
+  const colors = ["blue","purple","green","amber","blue","purple"];
+  const icons = ["âï¸","ð§ ","ð","ð¤","âï¸","ð¦"];
+  let html = "";
+  order.forEach((a,i)=>{
+    if(!counts[a]) return;
+    const safeArea = a.replace(/'/g,"\\'");
+    html += `<div class="kpi-card ${colors[i]}" onclick="jumpToTimeline({area:'${safeArea}'})" title="Filter Timeline by ${a}"><div class="kpi-icon">${icons[i]}</div><div class="kpi-value">${counts[a]}</div><div class="kpi-label">${a} Items</div></div>`;
+  });
+  document.getElementById("execKpiGrid").innerHTML = html;
+}
+
+function renderStatusProgress(){
+  const counts = {};
+  DATA.forEach(d=>{
+    const s = d.status || "TBD";
+    counts[s] = (counts[s]||0)+1;
+  });
+  const total = DATA.length;
+  const order = [["Deployed","var(--vs-gradient-4)"],["In Progress","var(--vs-gradient-2)"],["Backlog","linear-gradient(135deg,var(--vs-amber),var(--vs-red))"],["On Hold","linear-gradient(135deg,#ef4444,#ec4899)"],["Ongoing","linear-gradient(135deg,#8b5cf6,#ec4899)"]];
+  let html = "";
+  order.forEach(([s,grad])=>{
+    const c = counts[s]||0;
+    const pct = total ? Math.round((c/total)*100) : 0;
+    html += `<div class="progress-row">
+      <div class="progress-label">${s}</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%;background:${grad}" data-target-width="${pct}%">${c}</div></div>
+      <div class="progress-count">${pct}%</div>
+    </div>`;
+  });
+  document.getElementById("statusProgressSection").innerHTML = html;
+  // animate
+  setTimeout(()=>{
+    document.querySelectorAll(".progress-bar-fill").forEach(bar=>{
+      bar.style.width = bar.dataset.targetWidth || "0%";
+    });
+  }, 300);
+}
+
+// ============ CHARTS ============
+function chartBase(extra){
+  return Object.assign({
+    plugins:{legend:{labels:{color:"#94a3b8",font:{family:"Inter",size:11}},position:"bottom"}},
+    responsive:true,
+    maintainAspectRatio:false
+  }, extra||{});
+}
+function gridStyle(){
+  return {grid:{color:"rgba(30,39,69,0.5)"},ticks:{color:"#94a3b8",font:{family:"Inter",size:11}}};
+}
+
+function renderCharts(){
+  renderInsightStrip();
+  renderStatusDonut();
+  renderQuarterStacked();
+  renderGeoCards();
+  renderMatrix();
+  renderAreaStacked();
+}
+
+// ============ INSIGHT STRIP ============
+function renderInsightStrip(){
+  const total = DATA.length;
+  const dep = DATA.filter(d=>d.status==="Deployed").length;
+  const ip = DATA.filter(d=>d.status==="In Progress").length;
+  const bl = DATA.filter(d=>d.status==="Backlog").length;
+  const depPct = Math.round((dep/total)*100);
+  const ipPct = Math.round((ip/total)*100);
+  const inFlight = dep + ip;
+  const inFlightPct = Math.round((inFlight/total)*100);
+
+  // Top area
+  const aCounts = {};
+  DATA.forEach(d=>{ const a=d.area||"Other"; aCounts[a]=(aCounts[a]||0)+1; });
+  const topArea = Object.entries(aCounts).sort((a,b)=>b[1]-a[1])[0];
+  const topAreaPct = Math.round((topArea[1]/total)*100);
+
+  // Active quarter
+  const q2Count = DATA.filter(d=>d.quarter==="Q2").length;
+  const q2Pct = Math.round((q2Count/total)*100);
+
+  document.getElementById("insightStrip").innerHTML = `
+    <div class="insight-tile t-blue" onclick="jumpToTimeline()" title="View all initiatives">
+      <div class="it-label">Total Initiatives</div>
+      <div class="it-value">${total}</div>
+      <div class="it-sub">Tracked across the 2026 plan</div>
+    </div>
+    <div class="insight-tile t-green" onclick="jumpToTimeline({status:'Deployed'})" title="View Deployed initiatives">
+      <div class="it-label">Shipped or Shipping</div>
+      <div class="it-value">${inFlight}</div>
+      <div class="it-sub"><span class="it-trend up">&#9650; ${inFlightPct}%</span> Deployed + In Progress</div>
+    </div>
+    <div class="insight-tile t-purple" onclick="jumpToTimeline({area:'${topArea[0].replace(/'/g,"\\'")}'})" title="Filter Timeline by ${topArea[0]}">
+      <div class="it-label">Top Investment Area</div>
+      <div class="it-value">${topArea[0]}</div>
+      <div class="it-sub">${topArea[1]} items &middot; ${topAreaPct}% of roadmap</div>
+    </div>
+    <div class="insight-tile t-amber" onclick="jumpToQuarter('Q2')" title="View Q2 in Quarter View">
+      <div class="it-label">Q2 Active Push</div>
+      <div class="it-value">${q2Count}</div>
+      <div class="it-sub">${q2Pct}% of plan in current quarter</div>
+    </div>`;
+}
+
+// ============ STATUS DONUT + LEGEND ============
+function renderStatusDonut(){
+  const sCounts = {};
+  DATA.forEach(d=>{ const s=d.status||"TBD"; sCounts[s]=(sCounts[s]||0)+1; });
+  const order = ["Deployed","In Progress","Backlog","On Hold","Ongoing","TBD"].filter(s=>sCounts[s]);
+  const total = DATA.length;
+  const colors = order.map(s=>(STATUS_CFG[s]||{}).color || "#64748b");
+
+  new Chart(document.getElementById("chartStatus"), {
+    type:"doughnut",
+    data:{labels:order, datasets:[{data:order.map(s=>sCounts[s]), backgroundColor:colors, borderColor:"#0f1629", borderWidth:3, hoverOffset:8}]},
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      cutout:"68%",
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:"#0f1629",
+          borderColor:"#1e2745",
+          borderWidth:1,
+          padding:12,
+          titleColor:"#e2e8f0",
+          bodyColor:"#94a3b8",
+          callbacks:{
+            label:(ctx)=>{
+              const v = ctx.parsed;
+              const pct = ((v/total)*100).toFixed(1);
+              return ` ${v} items (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  document.getElementById("donutCenterNum").textContent = total;
+
+  // Custom legend
+  const legend = order.map(s=>{
+    const c = sCounts[s];
+    const pct = ((c/total)*100).toFixed(1);
+    const color = (STATUS_CFG[s]||{}).color || "#64748b";
+    return `<div class="dl-item">
+      <span class="dl-swatch" style="background:${color}"></span>
+      <span class="dl-name">${s}</span>
+      <span class="dl-count">${c}</span>
+      <span class="dl-pct">${pct}%</span>
+    </div>`;
+  }).join("");
+  document.getElementById("statusLegend").innerHTML = legend;
+
+  // Badge & insight
+  const dep = sCounts["Deployed"]||0;
+  const depPct = Math.round((dep/total)*100);
+  document.getElementById("statusBadge").textContent = `${depPct}% delivered`;
+  const bl = sCounts["Backlog"]||0;
+  const ip = sCounts["In Progress"]||0;
+  document.getElementById("statusInsight").innerHTML = `<strong>${dep}</strong> initiatives deployed and <strong>${ip}</strong> currently in active development &mdash; with <strong>${bl}</strong> queued in backlog for upcoming quarters.`;
+}
+
+// ============ QUARTER STACKED BARS ============
+function renderQuarterStacked(){
+  const total = DATA.length;
+  const statuses = [
+    {key:"Deployed", color:"#10b981"},
+    {key:"In Progress", color:"#3b82f6"},
+    {key:"Backlog", color:"#f59e0b"},
+    {key:"On Hold", color:"#ef4444"}
+  ];
+  const quarters = Q_ORDER.filter(q=>DATA.some(d=>d.quarter===q));
+  const counts = {};
+  quarters.forEach(q=>{
+    counts[q] = {};
+    statuses.forEach(s=>{
+      counts[q][s.key] = DATA.filter(d=>d.quarter===q && d.status===s.key).length;
+    });
+    counts[q].total = statuses.reduce((sum,s)=>sum+counts[q][s.key],0);
+  });
+  const maxQ = Math.max(...quarters.map(q=>counts[q].total));
+
+  let html = quarters.map(q=>{
+    const qt = counts[q].total;
+    const widthPct = (qt/maxQ)*100;
+    const segs = statuses.filter(s=>counts[q][s.key]>0).map(s=>{
+      const segPct = (counts[q][s.key]/qt)*100;
+      return `<div class="br-seg" style="width:${segPct}%;background:${s.color};" title="${s.key}: ${counts[q][s.key]}"><span class="br-seg-num">${counts[q][s.key]}</span></div>`;
+    }).join("");
+    return `<div class="bar-row">
+      <div class="br-label">${Q_LABELS[q]}</div>
+      <div class="br-track" style="width:${widthPct}%; min-width:${widthPct}%; max-width:${widthPct}%;">${segs}</div>
+      <div class="br-pct">${qt}</div>
+    </div>`;
+  }).join("");
+  // Override: render full-width bars but background showing only stacked segs scaled to proportional max
+  html = quarters.map(q=>{
+    const qt = counts[q].total;
+    const trackPct = (qt/maxQ)*100;
+    const segs = statuses.filter(s=>counts[q][s.key]>0).map(s=>{
+      const segPct = (counts[q][s.key]/qt)*100;
+      return `<div class="br-seg" style="width:${segPct}%;background:${s.color};" title="${s.key}: ${counts[q][s.key]}"><span class="br-seg-num">${counts[q][s.key]}</span></div>`;
+    }).join("");
+    return `<div class="bar-row">
+      <div class="br-label">${Q_LABELS[q]}</div>
+      <div class="br-track"><div style="display:flex;width:${trackPct}%;height:100%;border-radius:12px;overflow:hidden;">${segs}</div></div>
+      <div class="br-pct">${qt}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("quarterBarList").innerHTML = html;
+
+  document.getElementById("quarterLegend").innerHTML = statuses.map(s=>
+    `<span class="sl-chip"><span class="sl-dot" style="background:${s.color}"></span>${s.key}</span>`
+  ).join("");
+
+  // Badge & insight
+  const peak = quarters.reduce((a,b)=>counts[a].total>counts[b].total?a:b);
+  document.getElementById("quarterBadge").textContent = `Peak: ${Q_LABELS[peak]}`;
+  document.getElementById("quarterInsight").innerHTML = `<strong>${Q_LABELS[peak]}</strong> is the heaviest delivery window with <strong>${counts[peak].total}</strong> initiatives. ${quarters.includes("TBD")?`<strong>${counts.TBD?.total||0}</strong> items are still unscheduled and need quarter assignment.`:""}`;
+}
+
+// ============ GEO CARDS ============
+function renderGeoCards(){
+  const gCounts = {US:0, UK:0, AUS:0, "N.A.":0};
+  DATA.forEach(d=>{
+    const g = (d.geo||"").trim();
+    if(!g) return;
+    if(g.includes("US")) gCounts.US++;
+    if(g.includes("UK")) gCounts.UK++;
+    if(g.includes("AUS")) gCounts.AUS++;
+    if(g.includes("N.A")) gCounts["N.A."]++;
+  });
+  const max = Math.max(...Object.values(gCounts));
+  const total = DATA.length;
+  const flags = {US:"ðºð¸", UK:"ð¬ð§", AUS:"ð¦ðº", "N.A.":"ð"};
+  const names = {US:"United States", UK:"United Kingdom", AUS:"Australia", "N.A.":"Internal / N/A"};
+  const html = Object.entries(gCounts).filter(([_,v])=>v>0).map(([k,v])=>{
+    const pct = Math.round((v/total)*100);
+    const fillPct = max ? Math.round((v/max)*100) : 0;
+    return `<div class="geo-card" onclick="jumpToTimeline({search:'${k}'})" title="Filter Timeline by ${names[k]||k}">
+      <div class="geo-flag">${flags[k]||"ð"}</div>
+      <div class="geo-name">${names[k]||k}</div>
+      <div class="geo-num">${v}</div>
+      <div class="geo-bar"><div class="geo-bar-fill" style="width:0%" data-target="${fillPct}%"></div></div>
+      <div class="geo-pct">${pct}% of roadmap</div>
+    </div>`;
+  }).join("");
+  document.getElementById("geoGrid").innerHTML = html;
+
+  document.getElementById("geoBadge").textContent = `${Object.values(gCounts).filter(v=>v>0).length} regions`;
+  const top = Object.entries(gCounts).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById("geoInsight").innerHTML = `<strong>${names[top[0]]||top[0]}</strong> leads with <strong>${top[1]}</strong> initiatives. Multi-region rollouts ensure feature parity across English-speaking markets.`;
+
+  setTimeout(()=>{
+    document.querySelectorAll(".geo-bar-fill").forEach(b=>{ b.style.width = b.dataset.target; });
+  }, 200);
+}
+
+// ============ AREA Ã STATUS MATRIX ============
+function renderMatrix(){
+  const areas = Object.keys(AREA_CFG).filter(a=>DATA.some(d=>d.area===a));
+  const statuses = ["Deployed","In Progress","Backlog","On Hold"];
+  const grid = {};
+  areas.forEach(a=>{
+    grid[a] = {};
+    statuses.forEach(s=>{ grid[a][s] = DATA.filter(d=>d.area===a && d.status===s).length; });
+    grid[a].total = statuses.reduce((sum,s)=>sum+grid[a][s],0);
+  });
+  // Normalize for color intensity per status column
+  const maxCol = {};
+  statuses.forEach(s=>{ maxCol[s] = Math.max(...areas.map(a=>grid[a][s])); });
+
+  let html = `<thead><tr><th class="row-h">Product Area</th>`;
+  statuses.forEach(s=>{
+    const color = (STATUS_CFG[s]||{}).color || "#64748b";
+    html += `<th><span style="display:inline-flex;align-items:center;gap:0.35rem;"><span style="width:8px;height:8px;border-radius:2px;background:${color};display:inline-block"></span>${s}</span></th>`;
+  });
+  html += `<th>Total</th></tr></thead><tbody>`;
+
+  areas.forEach(a=>{
+    html += `<tr><td class="row-h">${(AREA_CFG[a]||{}).emoji||""} ${a}</td>`;
+    statuses.forEach(s=>{
+      const v = grid[a][s];
+      const intensity = maxCol[s] ? v/maxCol[s] : 0;
+      const color = (STATUS_CFG[s]||{}).color || "#64748b";
+      const bg = v ? `background:${color}${alphaHex(0.12 + intensity*0.45)};border:1px solid ${color}${alphaHex(0.3+intensity*0.4)};color:${color};` : `background:rgba(255,255,255,0.02);border:1px solid var(--vs-border);color:var(--vs-text-dim);`;
+      html += `<td class="cell" style="${bg}">${v||"â"}</td>`;
+    });
+    html += `<td class="total">${grid[a].total}</td></tr>`;
+  });
+
+  // Total row
+  html += `<tr class="total-row"><td class="row-h">Totals</td>`;
+  statuses.forEach(s=>{
+    const v = areas.reduce((sum,a)=>sum+grid[a][s],0);
+    html += `<td>${v}</td>`;
+  });
+  html += `<td>${DATA.length}</td></tr></tbody>`;
+  document.getElementById("matrixTable").innerHTML = html;
+
+  // Insight
+  let hottestArea = areas[0], hottestVal = 0;
+  areas.forEach(a=>{ if(grid[a]["In Progress"]>hottestVal){ hottestVal = grid[a]["In Progress"]; hottestArea = a; } });
+  document.getElementById("matrixInsight").innerHTML = `<strong>${hottestArea}</strong> has the most active development with <strong>${hottestVal}</strong> in-progress items. Cells are shaded by relative intensity within each status column.`;
+}
+
+function alphaHex(a){
+  const v = Math.round(a*255).toString(16).padStart(2,"0");
+  return v;
+}
+
+// ============ AREA STACKED BARS ============
+function renderAreaStacked(){
+  const statuses = [
+    {key:"Deployed", color:"#10b981"},
+    {key:"In Progress", color:"#3b82f6"},
+    {key:"Backlog", color:"#f59e0b"},
+    {key:"On Hold", color:"#ef4444"}
+  ];
+  const areas = Object.keys(AREA_CFG).filter(a=>DATA.some(d=>d.area===a))
+    .map(a=>({
+      name:a,
+      emoji:(AREA_CFG[a]||{}).emoji||"",
+      counts:Object.fromEntries(statuses.map(s=>[s.key, DATA.filter(d=>d.area===a && d.status===s.key).length])),
+      total:DATA.filter(d=>d.area===a).length
+    }))
+    .sort((a,b)=>b.total-a.total);
+
+  const max = Math.max(...areas.map(a=>a.total));
+  const totalAll = DATA.length;
+
+  const html = areas.map(a=>{
+    const trackPct = (a.total/max)*100;
+    const segs = statuses.filter(s=>a.counts[s.key]>0).map(s=>{
+      const segPct = (a.counts[s.key]/a.total)*100;
+      return `<div class="br-seg" style="width:${segPct}%;background:${s.color};" title="${s.key}: ${a.counts[s.key]}"><span class="br-seg-num">${a.counts[s.key]}</span></div>`;
+    }).join("");
+    const pct = Math.round((a.total/totalAll)*100);
+    return `<div class="bar-row">
+      <div class="br-label"><span class="br-emoji">${a.emoji}</span>${a.name}</div>
+      <div class="br-track"><div style="display:flex;width:${trackPct}%;height:100%;border-radius:12px;overflow:hidden;">${segs}</div></div>
+      <div class="br-pct">${a.total} &middot; ${pct}%</div>
+    </div>`;
+  }).join("");
+  document.getElementById("areaBarList").innerHTML = html;
+
+  document.getElementById("areaLegend").innerHTML = statuses.map(s=>
+    `<span class="sl-chip"><span class="sl-dot" style="background:${s.color}"></span>${s.key}</span>`
+  ).join("");
+
+  document.getElementById("areaBadge").textContent = `${areas.length} areas`;
+  const top = areas[0];
+  document.getElementById("areaInsight").innerHTML = `<strong>${top.name}</strong> dominates the roadmap with <strong>${top.total}</strong> initiatives (${Math.round((top.total/totalAll)*100)}% of total). Bars are sorted by volume and color-coded by delivery status.`;
+}
+
+// ============ VERTICALS CHART (multi-series) ============
+function renderVerticalsChart(){
+  const allCount = VERTICALS.map(v=>vertItems(v).length);
+  const specificCount = VERTICALS.map(v=>vertSpecific(v).length);
+  const labels = VERTICALS.map(v=>VERT_LABEL[v]);
+  new Chart(document.getElementById("chartVerticals"), {
+    type:"bar",
+    data:{
+      labels,
+      datasets:[
+        {label:"Total Applicable", data:allCount, backgroundColor:"rgba(59,130,246,0.7)", borderColor:"#3b82f6", borderWidth:2, borderRadius:8},
+        {label:"Vertical-Specific", data:specificCount, backgroundColor:"rgba(139,92,246,0.7)", borderColor:"#8b5cf6", borderWidth:2, borderRadius:8}
+      ]
+    },
+    options: chartBase({
+      plugins:{
+        legend:{position:"top", labels:{color:"#94a3b8",font:{family:"Inter",size:11},padding:14}},
+        tooltip:{backgroundColor:"#0f1629",borderColor:"#1e2745",borderWidth:1,padding:12,callbacks:{label:(ctx)=>` ${ctx.dataset.label}: ${ctx.parsed.y} initiatives`}}
+      },
+      scales:{x:gridStyle(),y:Object.assign({beginAtZero:true},gridStyle())}
+    })
+  });
+  const top = labels[allCount.indexOf(Math.max(...allCount))];
+  const totalAll = allCount.reduce((a,b)=>a+b,0);
+  const totalSpec = specificCount.reduce((a,b)=>a+b,0);
+  document.getElementById("vertChartInsight").innerHTML = `<strong>${top}</strong> sees the broadest applicability. Across all four verticals there are <strong>${totalAll}</strong> applicable initiative-vertical mappings, of which <strong>${totalSpec}</strong> are vertical-specific (the rest are universal "All" items).`;
+}
+
+// ============ VERTICALS â RICH ============
+function vertItems(v){
+  return DATA.filter(d=>(d.vertical||"").includes(v) || (d.vertical||"").toLowerCase()==="all");
+}
+function vertSpecific(v){
+  // items that mention this vertical AND aren't tagged "All"
+  return DATA.filter(d=>{
+    const t = (d.vertical||"").toLowerCase();
+    return t.includes(v.toLowerCase()) && t !== "all";
+  });
+}
+
+function renderVerticalsAll(){
+  renderVertInsightStrip();
+  renderVertRichCards();
+  renderVertMatrix();
+  renderVertStatusMix();
+  renderVerticalsChart();
+}
+
+function renderVertInsightStrip(){
+  const total = DATA.length;
+  const taggedAll = DATA.filter(d=>(d.vertical||"").toLowerCase()==="all").length;
+  const crossVert = DATA.filter(d=>{
+    const t = (d.vertical||"").toLowerCase();
+    if(t==="all") return true;
+    let n=0;
+    VERTICALS.forEach(v=>{ if(t.includes(v.toLowerCase())) n++; });
+    return n >= 3;
+  }).length;
+  const counts = VERTICALS.map(v=>({v, n: vertItems(v).length}));
+  const top = counts.sort((a,b)=>b.n-a.n)[0];
+  const untagged = DATA.filter(d=>!d.vertical || d.vertical.trim()==="").length;
+
+  document.getElementById("vertInsightStrip").innerHTML = `
+    <div class="insight-tile t-blue" onclick="scrollToId('verticals')" title="Scroll to vertical cards">
+      <div class="it-label">Verticals Served</div>
+      <div class="it-value">${VERTICALS.length}</div>
+      <div class="it-sub">Dental &middot; PT &middot; Optometry &middot; Veterinary</div>
+    </div>
+    <div class="insight-tile t-green" onclick="jumpToVerticals('${top.v}')" title="Drill into ${VERT_LABEL[top.v]}">
+      <div class="it-label">Most Invested</div>
+      <div class="it-value">${VERT_LABEL[top.v]}</div>
+      <div class="it-sub"><span class="it-trend up">${top.n}</span> applicable initiatives</div>
+    </div>
+    <div class="insight-tile t-purple" onclick="jumpToTimeline({search:'all'})" title="View cross-vertical items in Timeline">
+      <div class="it-label">Cross-Vertical Features</div>
+      <div class="it-value">${crossVert}</div>
+      <div class="it-sub">Applicable to 3+ verticals or all</div>
+    </div>
+    <div class="insight-tile t-amber" onclick="jumpToTimeline({search:'all'})" title="View Universal Items in Timeline">
+      <div class="it-label">Universal Items</div>
+      <div class="it-value">${taggedAll}</div>
+      <div class="it-sub">Tagged "All" verticals</div>
+    </div>`;
+}
+
+function renderVertRichCards(){
+  const total = DATA.length;
+  const cls = {Dental:"v-dental", PT:"v-pt", Optom:"v-optom", Vet:"v-vet"};
+  const subtitle = {Dental:"Practices &amp; DSOs", PT:"Clinics &amp; Therapy Networks", Optom:"Vision Practices", Vet:"Animal Hospitals"};
+
+  const html = VERTICALS.map(v=>{
+    const items = vertItems(v);
+    const dep = items.filter(d=>d.status==="Deployed").length;
+    const ip = items.filter(d=>d.status==="In Progress").length;
+    const bl = items.filter(d=>d.status==="Backlog").length;
+    const sum = dep+ip+bl;
+    const depPct = sum ? (dep/sum)*100 : 0;
+    const ipPct = sum ? (ip/sum)*100 : 0;
+    const blPct = sum ? (bl/sum)*100 : 0;
+    // Top areas for this vertical
+    const aCounts = {};
+    items.forEach(d=>{ const a=d.area||"Other"; aCounts[a]=(aCounts[a]||0)+1; });
+    const topAreas = Object.entries(aCounts).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([a,n])=>`<strong>${a}</strong> (${n})`).join(", ");
+
+    return `<div class="vert-rich-card ${cls[v]}" data-vert="${v}" onclick="openVertDrilldown('${v}')">
+      <div class="vrc-head">
+        <div>
+          <div class="vrc-emoji">${VERT_EMOJI[v]}</div>
+        </div>
+        <div class="vrc-num">${items.length}</div>
+      </div>
+      <div class="vrc-name">${VERT_LABEL[v]}</div>
+      <div class="vrc-sub">${subtitle[v]}</div>
+      <div class="vrc-status-row">
+        <div class="vrc-stat dep"><div class="vs-num">${dep}</div><div class="vs-lbl">Deployed</div></div>
+        <div class="vrc-stat ip"><div class="vs-num">${ip}</div><div class="vs-lbl">Active</div></div>
+        <div class="vrc-stat bl"><div class="vs-num">${bl}</div><div class="vs-lbl">Backlog</div></div>
+      </div>
+      <div class="vrc-progress">
+        <div class="vp-seg" style="width:${depPct}%;background:#10b981" title="Deployed"></div>
+        <div class="vp-seg" style="width:${ipPct}%;background:#3b82f6" title="In Progress"></div>
+        <div class="vp-seg" style="width:${blPct}%;background:#f59e0b" title="Backlog"></div>
+      </div>
+      <div class="vrc-progress-meta">
+        <span>Progress: ${Math.round(depPct)}%</span>
+        <span>${Math.round((items.length/total)*100)}% of roadmap</span>
+      </div>
+      <div class="vrc-areas">Top areas: ${topAreas || '<em>None yet</em>'}</div>
+      <div class="vrc-cta">
+        <span>View all ${items.length} initiatives</span>
+        <span class="vrc-arrow">&rarr;</span>
+      </div>
+    </div>`;
+  }).join("");
+  document.getElementById("vertRichGrid").innerHTML = html;
+}
+
+// Drilldown
+let vdState = {vert:null, status:"all", area:"all"};
+function openVertDrilldown(v){
+  vdState = {vert:v, status:"all", area:"all"};
+  document.querySelectorAll(".vert-rich-card").forEach(c=>{
+    c.classList.toggle("selected", c.dataset.vert===v);
+  });
+  document.getElementById("vdEmoji").textContent = VERT_EMOJI[v];
+  document.getElementById("vdTitle").textContent = `${VERT_LABEL[v]} Initiatives`;
+  const items = vertItems(v);
+  const specific = vertSpecific(v);
+  document.getElementById("vdSub").innerHTML = `${items.length} total &middot; ${specific.length} vertical-specific &middot; ${items.length - specific.length} universal`;
+
+  // stats
+  const dep = items.filter(d=>d.status==="Deployed").length;
+  const ip = items.filter(d=>d.status==="In Progress").length;
+  const bl = items.filter(d=>d.status==="Backlog").length;
+  document.getElementById("vdStats").innerHTML = `
+    <div class="vd-stat dep" onclick="vdStatClick('Deployed')" title="Filter list to Deployed"><div class="vds-n">${dep}</div><div class="vds-l">Deployed</div></div>
+    <div class="vd-stat ip" onclick="vdStatClick('In Progress')" title="Filter list to In Progress"><div class="vds-n">${ip}</div><div class="vds-l">In Progress</div></div>
+    <div class="vd-stat bl" onclick="vdStatClick('Backlog')" title="Filter list to Backlog"><div class="vds-n">${bl}</div><div class="vds-l">Backlog</div></div>
+    <div class="vd-stat" onclick="vdStatClick('all')" title="Show all"><div class="vds-n">${items.length}</div><div class="vds-l">Total</div></div>`;
+
+  // filter bar
+  const areas = Array.from(new Set(items.map(d=>d.area))).filter(Boolean);
+  let fb = `<span class="filter-label">Status:</span>
+    <button class="filter-chip active" onclick="vdFilter('status','all',this)">All</button>
+    <button class="filter-chip" onclick="vdFilter('status','Deployed',this)">Deployed</button>
+    <button class="filter-chip" onclick="vdFilter('status','In Progress',this)">In Progress</button>
+    <button class="filter-chip" onclick="vdFilter('status','Backlog',this)">Backlog</button>
+    <span class="filter-label" style="margin-left:0.5rem">Area:</span>
+    <button class="filter-chip active" onclick="vdFilter('area','all',this)">All</button>`;
+  areas.forEach(a=>{
+    fb += `<button class="filter-chip" onclick="vdFilter('area','${a.replace(/'/g,"\\'")}',this)">${a}</button>`;
+  });
+  document.getElementById("vdFilterBar").innerHTML = fb;
+
+  renderVdList();
+  const panel = document.getElementById("vertDrilldown");
+  panel.classList.add("show");
+  setTimeout(()=>{
+    panel.scrollIntoView({behavior:"smooth", block:"start"});
+  }, 50);
+}
+function vdStatClick(status){
+  vdState.status = status;
+  // Sync chip UI
+  document.querySelectorAll("#vdFilterBar .filter-chip").forEach(c=>{
+    const oc = c.getAttribute("onclick")||"";
+    if(oc.includes("'status',")){
+      c.classList.toggle("active", oc.includes(`'${status}'`));
+    }
+  });
+  renderVdList();
+}
+function vdFilter(kind, val, btn){
+  vdState[kind] = val;
+  // toggle active for siblings within the same kind row
+  const allChips = document.querySelectorAll("#vdFilterBar .filter-chip");
+  allChips.forEach(c=>{
+    const oc = c.getAttribute("onclick")||"";
+    if(oc.includes(`'${kind}',`)) c.classList.remove("active");
+  });
+  btn.classList.add("active");
+  renderVdList();
+}
+function renderVdList(){
+  const items = vertItems(vdState.vert).filter(d=>{
+    if(vdState.status!=="all" && d.status!==vdState.status) return false;
+    if(vdState.area!=="all" && d.area!==vdState.area) return false;
+    return true;
+  });
+  const list = document.getElementById("vdList");
+  if(!items.length){
+    list.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">ð­</div><p>No items match these filters.</p></div>`;
+    return;
+  }
+  list.innerHTML = items.map(itemCard).join("");
+}
+function closeVertDrilldown(){
+  document.getElementById("vertDrilldown").classList.remove("show");
+  document.querySelectorAll(".vert-rich-card").forEach(c=>c.classList.remove("selected"));
+}
+
+// Vertical Ã Area Heatmap
+function renderVertMatrix(){
+  const areas = Object.keys(AREA_CFG).filter(a=>DATA.some(d=>d.area===a));
+  const grid = {};
+  VERTICALS.forEach(v=>{
+    grid[v] = {};
+    const items = vertItems(v);
+    areas.forEach(a=>{ grid[v][a] = items.filter(d=>d.area===a).length; });
+    grid[v].total = areas.reduce((s,a)=>s+grid[v][a],0);
+  });
+  const maxCol = {};
+  areas.forEach(a=>{ maxCol[a] = Math.max(...VERTICALS.map(v=>grid[v][a])); });
+
+  let html = `<thead><tr><th class="row-h">Vertical</th>`;
+  areas.forEach(a=>{
+    const color = (AREA_CFG[a]||{}).color || "#64748b";
+    html += `<th><span style="display:inline-flex;align-items:center;gap:0.35rem;"><span style="width:8px;height:8px;border-radius:2px;background:${color};display:inline-block"></span>${a}</span></th>`;
+  });
+  html += `<th>Total</th></tr></thead><tbody>`;
+  VERTICALS.forEach(v=>{
+    html += `<tr><td class="row-h">${VERT_EMOJI[v]} ${VERT_LABEL[v]}</td>`;
+    areas.forEach(a=>{
+      const val = grid[v][a];
+      const intensity = maxCol[a] ? val/maxCol[a] : 0;
+      const color = (AREA_CFG[a]||{}).color || "#64748b";
+      const bg = val ? `background:${color}${alphaHex(0.10+intensity*0.45)};border:1px solid ${color}${alphaHex(0.25+intensity*0.4)};color:${color};` : `background:rgba(255,255,255,0.02);border:1px solid var(--vs-border);color:var(--vs-text-dim);`;
+      html += `<td class="cell" style="${bg}">${val||"â"}</td>`;
+    });
+    html += `<td class="total">${grid[v].total}</td></tr>`;
+  });
+  html += `<tr class="total-row"><td class="row-h">Totals</td>`;
+  areas.forEach(a=>{
+    const v = VERTICALS.reduce((s,vv)=>s+grid[vv][a],0);
+    html += `<td>${v}</td>`;
+  });
+  const grand = VERTICALS.reduce((s,vv)=>s+grid[vv].total,0);
+  html += `<td>${grand}</td></tr></tbody>`;
+  document.getElementById("vertMatrixTable").innerHTML = html;
+
+  // insight: hottest cell
+  let hotCell = {v:null, a:null, n:0};
+  VERTICALS.forEach(v=>areas.forEach(a=>{
+    if(grid[v][a]>hotCell.n) hotCell = {v, a, n:grid[v][a]};
+  }));
+  document.getElementById("vertMatrixInsight").innerHTML = `<strong>${VERT_LABEL[hotCell.v]}</strong> &times; <strong>${hotCell.a}</strong> is the densest pairing with <strong>${hotCell.n}</strong> initiatives. Cells shaded by intensity within each area column.`;
+}
+
+// Status mix per vertical (stacked bars)
+function renderVertStatusMix(){
+  const statuses = [
+    {key:"Deployed", color:"#10b981"},
+    {key:"In Progress", color:"#3b82f6"},
+    {key:"Backlog", color:"#f59e0b"},
+    {key:"On Hold", color:"#ef4444"}
+  ];
+  const rows = VERTICALS.map(v=>{
+    const items = vertItems(v);
+    const counts = Object.fromEntries(statuses.map(s=>[s.key, items.filter(d=>d.status===s.key).length]));
+    return {v, counts, total:items.length};
+  }).sort((a,b)=>b.total-a.total);
+  const max = Math.max(...rows.map(r=>r.total));
+  const totalAll = DATA.length;
+
+  const html = rows.map(r=>{
+    const trackPct = max ? (r.total/max)*100 : 0;
+    const segs = statuses.filter(s=>r.counts[s.key]>0).map(s=>{
+      const segPct = r.total ? (r.counts[s.key]/r.total)*100 : 0;
+      return `<div class="br-seg" style="width:${segPct}%;background:${s.color};" title="${s.key}: ${r.counts[s.key]}"><span class="br-seg-num">${r.counts[s.key]}</span></div>`;
+    }).join("");
+    return `<div class="bar-row">
+      <div class="br-label"><span class="br-emoji">${VERT_EMOJI[r.v]}</span>${VERT_LABEL[r.v]}</div>
+      <div class="br-track"><div style="display:flex;width:${trackPct}%;height:100%;border-radius:12px;overflow:hidden;">${segs}</div></div>
+      <div class="br-pct">${r.total}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("vertStatusBarList").innerHTML = html;
+
+  document.getElementById("vertStatusLegend").innerHTML = statuses.map(s=>
+    `<span class="sl-chip"><span class="sl-dot" style="background:${s.color}"></span>${s.key}</span>`
+  ).join("");
+
+  document.getElementById("vertStatusBadge").textContent = `${VERTICALS.length} verticals`;
+  // most progressed vertical
+  let bestPct = 0, bestV = rows[0].v;
+  rows.forEach(r=>{
+    const p = r.total ? r.counts.Deployed/r.total : 0;
+    if(p>bestPct){ bestPct = p; bestV = r.v; }
+  });
+  document.getElementById("vertStatusInsight").innerHTML = `<strong>${VERT_LABEL[bestV]}</strong> has the highest deployed share at <strong>${Math.round(bestPct*100)}%</strong>. Bars are sorted by total volume.`;
+}
+
+// ============ TIMELINE & FILTERS ============
+function setFilter(btn){
+  const filter = btn.dataset.filter;
+  const value = btn.dataset.value;
+  document.querySelectorAll(`.filter-chip[data-filter="${filter}"]`).forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  if(filter==="status") state.filterStatus = value;
+  if(filter==="area") state.filterArea = value;
+  renderTimeline();
+}
+function getFiltered(){
+  const term = (document.getElementById("searchInput")?.value || "").toLowerCase();
+  return DATA.filter(d=>{
+    if(state.filterStatus !== "all" && d.status !== state.filterStatus) return false;
+    if(state.filterArea !== "all" && d.area !== state.filterArea) return false;
+    if(term){
+      const hay = [d.name,d.desc,d.area,d.type,d.vertical,d.geo].join(" ").toLowerCase();
+      if(!hay.includes(term)) return false;
+    }
+    return true;
+  });
+}
+function renderTimeline(){
+  const items = getFiltered();
+  const container = document.getElementById("timelineContainer");
+  if(!items.length){
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">ð</div><p>No items match your filters.</p></div>`;
+    return;
+  }
+  // group by quarter
+  const groups = {};
+  items.forEach(d=>{
+    const q = d.quarter||"TBD";
+    if(!groups[q]) groups[q] = [];
+    groups[q].push(d);
+  });
+  let html = "";
+  Q_ORDER.forEach(q=>{
+    if(!groups[q]) return;
+    html += `<div class="qv-section">
+      <div class="qv-section-header">
+        <span class="qv-section-badge" style="background:var(--vs-gradient-1)">${Q_LABELS[q]}</span>
+        <span class="qv-section-line"></span>
+        <span class="qv-section-count">${groups[q].length} item${groups[q].length>1?'s':''}</span>
+      </div>
+      <div class="timeline-items">${groups[q].map(itemCard).join("")}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ============ AREA BREAKDOWN ============
+function renderAreas(){
+  const container = document.getElementById("areaGrid");
+  const order = ["Phone System","Call Intelligence","CRM","AI Agents","Platform","Other"];
+  let html = "";
+  order.forEach(a=>{
+    const items = DATA.filter(d=>d.area===a);
+    if(!items.length) return;
+    const lis = items.map(d=>{
+      const cls = "bullet-" + statusClass(d.status);
+      return `<li><span class="bullet ${cls}"></span>${escHTML(d.name)}</li>`;
+    }).join("");
+    const safeArea = a.replace(/'/g,"\\'");
+    html += `<div class="area-card">
+      <div class="area-header">
+        <div class="area-name">${(AREA_CFG[a]||{}).emoji||""} ${a}</div>
+        <div class="area-count" onclick="jumpToTimeline({area:'${safeArea}'})" title="Filter Timeline by ${a}">${items.length}</div>
+      </div>
+      <ul class="area-items">${lis}</ul>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ============ TABLE ============
+function renderTable(){
+  const tbody = document.getElementById("tableBody");
+  const rows = DATA.map((d,i)=>{
+    const sCls = statusClass(d.status);
+    return `<tr>
+      <td>${i+1}</td>
+      <td class="offering-name">${escHTML(d.name)}</td>
+      <td>${escHTML(d.area||"-")}</td>
+      <td>${escHTML(Q_LABELS[d.quarter]||d.quarter||"-")}</td>
+      <td><span class="status-badge ${sCls}">${escHTML(d.status||"TBD")}</span></td>
+      <td>${escHTML(d.vertical||"-")}</td>
+      <td>${escHTML(d.geo||"-")}</td>
+    </tr>`;
+  }).join("");
+  tbody.innerHTML = rows;
+  document.getElementById("registryTitle").textContent = `All ${DATA.length} Roadmap Items`;
+}
+function filterTable(){
+  const term = (document.getElementById("tableSearchInput").value||"").toLowerCase();
+  const rows = document.querySelectorAll("#tableBody tr");
+  rows.forEach(tr=>{
+    const txt = tr.textContent.toLowerCase();
+    tr.style.display = txt.includes(term) ? "" : "none";
+  });
+}
+let sortDir = {};
+function sortTable(col){
+  const tbody = document.getElementById("tableBody");
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+  sortDir[col] = !sortDir[col];
+  const dir = sortDir[col] ? 1 : -1;
+  rows.sort((a,b)=>{
+    let av = a.cells[col].textContent.trim();
+    let bv = b.cells[col].textContent.trim();
+    const an = parseFloat(av), bn = parseFloat(bv);
+    if(!isNaN(an) && !isNaN(bn)) return (an-bn)*dir;
+    return av.localeCompare(bv) * dir;
+  });
+  rows.forEach(r=>tbody.appendChild(r));
+}
+
+// ============ SCROLL ANIMS ============
+function setupScrollAnimations(){
+  const els = document.querySelectorAll(".animate-on-scroll");
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add("visible");
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:0, rootMargin:"0px 0px -10% 0px"});
+  els.forEach(el=>{
+    io.observe(el);
+    // Safety net: if an element is already past the viewport on load, mark visible
+    const r = el.getBoundingClientRect();
+    if(r.top < window.innerHeight) el.classList.add("visible");
+  });
+}
+
+// Active nav highlight on scroll
+function setupActiveNav(){
+  const sections = ["quarterly-view","executive","analytics","verticals","timeline","areas","all-items"];
+  const buttons = document.querySelectorAll(".nav-btn");
+  window.addEventListener("scroll", ()=>{
+    let active = sections[0];
+    sections.forEach(s=>{
+      const el = document.getElementById(s);
+      if(el && el.getBoundingClientRect().top < 150) active = s;
+    });
+    buttons.forEach(b=>{
+      const oc = b.getAttribute("onclick")||"";
+      b.classList.toggle("active", oc.includes(`'${active}'`));
+    });
+  });
+}
+
+// ============ INIT ============
+function init(){
+  renderHeroStats();
+  renderQuarterNav();
+  renderQuarterContent();
+  renderExecKpis();
+  renderStatusProgress();
+  renderTimeline();
+  renderAreas();
+  renderTable();
+  setupScrollAnimations();
+  setupActiveNav();
+  // charts after a tick to ensure canvases are sized
+  setTimeout(()=>{
+    renderCharts();
+    renderVerticalsAll();
+  }, 100);
+}
+init();
+</script>
+</body>
+</html>
