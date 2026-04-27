@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceStack 2026 Product Roadmap</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --vs-dark: #0a0e1a;
+  --vs-navy: #0f1629;
+  --vs-card: #151b30;
+  --vs-card-hover: #1a2240;
+  --vs-border: #1e2745;
+  --vs-blue: #3b82f6;
+  --vs-blue-glow: rgba(59,130,246,0.25);
+  --vs-purple: #8b5cf6;
+  --vs-purple-glow: rgba(139,92,246,0.2);
+  --vs-cyan: #06b6d4;
+  --vs-green: #10b981;
+  --vs-amber: #f59e0b;
+  --vs-red: #ef4444;
+  --vs-pink: #ec4899;
+  --vs-text: #e2e8f0;
+  --vs-text-muted: #94a3b8;
+  --vs-text-dim: #64748b;
+  --vs-gradient-1: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --vs-gradient-2: linear-gradient(135deg, #06b6d4, #3b82f6);
+  --vs-gradient-3: linear-gradient(135deg, #8b5cf6, #ec4899);
+  --vs-gradient-4: linear-gradient(135deg, #10b981, #06b6d4);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--vs-dark); color:var(--vs-text); line-height:1.6; overflow-x:hidden; }
+.noise-overlay { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.03; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+.content-wrapper { position:relative; z-index:1; }
+
+/* HERO */
+.hero { position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; padding:2rem; overflow:hidden; }
+.hero::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(ellipse at 30% 20%,rgba(59,130,246,0.15) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(139,92,246,0.12) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(6,182,212,0.08) 0%,transparent 60%); animation:heroGlow 12s ease-in-out infinite alternate; }
+@keyframes heroGlow { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(-3%,-2%) scale(1.05)} }
+.hero-content { position:relative; z-index:2; max-width:900px; }
+.hero-badge { display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1.25rem; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); border-radius:100px; font-size:0.8rem; font-weight:600; color:var(--vs-blue); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:2rem; animation:fadeInUp .8s ease; }
+.hero-badge .dot { width:8px; height:8px; background:var(--vs-green); border-radius:50%; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+.hero h1 { font-size:clamp(2.5rem,6vw,5rem); font-weight:900; line-height:1.1; margin-bottom:1.5rem; animation:fadeInUp .8s ease .1s both; }
+.hero h1 .gradient-text { background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero .subtitle { font-size:clamp(1rem,2vw,1.35rem); color:var(--vs-text-muted); max-width:700px; margin:0 auto 3rem; animation:fadeInUp .8s ease .2s both; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.hero-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; animation:fadeInUp .8s ease .3s both; }
+.hero-stat { background:rgba(21,27,48,0.7); backdrop-filter:blur(20px); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem 1rem; transition:all .3s ease; cursor:pointer; position:relative; }
+.hero-stat:hover { border-color:var(--vs-blue); transform:translateY(-4px); box-shadow:0 8px 32px var(--vs-blue-glow); }
+.hero-stat::after { content:'View â'; position:absolute; bottom:6px; right:10px; font-size:0.62rem; font-weight:700; color:var(--vs-blue); opacity:0; transition:opacity .2s; letter-spacing:0.05em; }
+.hero-stat:hover::after { opacity:1; }
+.hero-stat .number { font-size:2.5rem; font-weight:800; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero-stat .label { font-size:0.8rem; color:var(--vs-text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-top:0.25rem; }
+
+/* NAV */
+.sticky-nav { position:sticky; top:0; z-index:100; background:rgba(10,14,26,0.85); backdrop-filter:blur(20px); border-bottom:1px solid var(--vs-border); }
+.nav-inner { max-width:1400px; margin:0 auto; display:flex; align-items:center; gap:0.5rem; padding:0.75rem 2rem; overflow-x:auto; scrollbar-width:none; }
+.nav-inner::-webkit-scrollbar { display:none; }
+.nav-logo { font-size:1rem; font-weight:800; white-space:nowrap; margin-right:1rem; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.nav-btn { padding:0.5rem 1rem; border-radius:8px; border:1px solid transparent; background:transparent; color:var(--vs-text-muted); font-size:0.8rem; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .2s ease; font-family:inherit; }
+.nav-btn:hover,.nav-btn.active { background:rgba(59,130,246,0.1); border-color:rgba(59,130,246,0.3); color:var(--vs-blue); }
+
+/* NAV BAR LAYOUT (with universal search) */
+.nav-bar { max-width:1400px; margin:0 auto; padding:0.6rem 1.25rem; display:flex; align-items:center; gap:0.85rem; }
+.nav-bar .nav-inner { flex:1; padding:0; min-width:0; max-width:none; margin:0; }
+.universal-search { position:relative; flex-shrink:0; }
+.universal-search-input { width:230px; padding:0.5rem 3.4rem 0.5rem 2.2rem; border-radius:8px; border:1px solid var(--vs-border); background:rgba(0,0,0,0.35); color:var(--vs-text); font-size:0.82rem; outline:none; font-family:inherit; transition:width .25s, border-color .2s, box-shadow .2s; }
+.universal-search-input:focus { border-color:var(--vs-blue); width:340px; box-shadow:0 0 0 3px var(--vs-blue-glow); background:rgba(15,22,41,0.95); }
+.universal-search-input::placeholder { color:var(--vs-text-dim); }
+.universal-search-icon { position:absolute; left:0.65rem; top:50%; transform:translateY(-50%); color:var(--vs-text-dim); font-size:0.85rem; pointer-events:none; line-height:1; }
+.universal-search-shortcut { position:absolute; right:0.5rem; top:50%; transform:translateY(-50%); font-size:0.62rem; padding:0.15rem 0.4rem; border-radius:4px; background:rgba(255,255,255,0.05); color:var(--vs-text-dim); border:1px solid var(--vs-border); pointer-events:none; font-weight:600; letter-spacing:0.04em; }
+.universal-search-input:focus ~ .universal-search-shortcut { opacity:0; }
+
+.universal-search-dropdown { position:absolute; top:calc(100% + 6px); right:0; width:520px; max-height:520px; overflow-y:auto; background:var(--vs-navy); border:1px solid var(--vs-border); border-radius:12px; box-shadow:0 16px 48px rgba(0,0,0,0.7); z-index:300; display:none; }
+.universal-search-dropdown.show { display:block; animation:fadeInUp .2s ease; }
+.usd-header { padding:0.7rem 1rem; font-size:0.72rem; color:var(--vs-text-muted); border-bottom:1px solid var(--vs-border); display:flex; justify-content:space-between; align-items:center; gap:0.75rem; background:rgba(0,0,0,0.2); position:sticky; top:0; }
+.usd-header strong { color:var(--vs-blue); font-weight:700; }
+.usd-action { background:none; border:1px solid var(--vs-border); border-radius:6px; padding:0.3rem 0.7rem; color:var(--vs-text-muted); font-size:0.7rem; cursor:pointer; font-family:inherit; font-weight:600; transition:all .15s; white-space:nowrap; }
+.usd-action:hover { color:var(--vs-blue); border-color:var(--vs-blue); background:rgba(59,130,246,0.06); }
+.usd-result { padding:0.85rem 1rem; cursor:pointer; border-bottom:1px solid rgba(30,39,69,0.4); transition:background .12s; }
+.usd-result:hover, .usd-result.focused { background:rgba(59,130,246,0.08); }
+.usd-result:last-child { border-bottom:none; }
+.usd-r-top { display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.35rem; }
+.usd-r-name { font-size:0.85rem; font-weight:700; color:var(--vs-text); flex:1; line-height:1.3; }
+.usd-r-name mark, .usd-r-desc mark { background:rgba(59,130,246,0.3); color:var(--vs-text); padding:0 2px; border-radius:2px; font-weight:700; }
+.usd-r-desc { font-size:0.74rem; color:var(--vs-text-muted); line-height:1.55; margin-bottom:0.45rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.usd-r-meta { display:flex; flex-wrap:wrap; gap:0.3rem; }
+.usd-r-meta .tag, .usd-r-meta .status-badge { font-size:0.62rem; padding:0.15rem 0.5rem; }
+.usd-empty { padding:2rem 1rem; text-align:center; color:var(--vs-text-dim); font-size:0.85rem; }
+.usd-empty .usd-empty-icon { font-size:1.6rem; margin-bottom:0.5rem; opacity:0.5; }
+.usd-footer { padding:0.6rem 1rem; font-size:0.72rem; color:var(--vs-text-dim); border-top:1px solid var(--vs-border); background:rgba(0,0,0,0.2); display:flex; justify-content:space-between; align-items:center; gap:0.5rem; }
+.usd-footer kbd { background:rgba(255,255,255,0.06); border:1px solid var(--vs-border); border-radius:4px; padding:0.1rem 0.4rem; font-size:0.65rem; font-family:inherit; font-weight:600; color:var(--vs-text-muted); }
+
+@media(max-width:900px){
+  .universal-search-input { width:160px; }
+  .universal-search-input:focus { width:220px; }
+  .universal-search-dropdown { width:90vw; right:-1rem; }
+  .universal-search-shortcut { display:none; }
+}
+
+/* SECTIONS */
+.section { max-width:1400px; margin:0 auto; padding:3rem 2rem; }
+.section-header { text-align:center; margin-bottom:1.75rem; }
+.section-label { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; color:var(--vs-blue); margin-bottom:0.5rem; }
+.section-title { font-size:clamp(1.75rem,3vw,2.5rem); font-weight:800; }
+.section-subtitle { color:var(--vs-text-muted); max-width:650px; margin:0.6rem auto 0; }
+
+/* QUARTER TABS */
+.quarter-nav { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:2rem; justify-content:center; }
+.quarter-tab { padding:0.6rem 1.25rem; border-radius:10px; border:1px solid var(--vs-border); background:var(--vs-card); color:var(--vs-text-muted); font-size:0.82rem; font-weight:600; cursor:pointer; transition:all .2s; font-family:inherit; position:relative; }
+.quarter-tab:hover { border-color:var(--vs-blue); color:var(--vs-text); }
+.quarter-tab.active { background:rgba(59,130,246,0.15); border-color:var(--vs-blue); color:var(--vs-blue); }
+.quarter-tab.current::after { content:'NOW'; position:absolute; top:-8px; right:-4px; font-size:0.55rem; font-weight:800; background:var(--vs-green); color:#fff; padding:1px 5px; border-radius:4px; }
+.quarter-tab .tab-count { display:inline-block; min-width:20px; text-align:center; padding:0.1rem 0.4rem; background:rgba(255,255,255,0.08); border-radius:4px; font-size:0.7rem; margin-left:0.4rem; }
+.quarter-tab.active .tab-count { background:rgba(59,130,246,0.25); }
+
+/* QUARTER VIEW SECTIONS */
+.qv-section { margin-bottom:2rem; }
+.qv-section-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; }
+.qv-section-badge { padding:0.4rem 1rem; border-radius:100px; font-size:0.82rem; font-weight:700; color:#fff; }
+.qv-section-line { flex:1; height:1px; background:var(--vs-border); }
+.qv-section-count { font-size:0.82rem; color:var(--vs-text-muted); }
+
+/* CARDS / GRID */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.25rem; margin-bottom:3rem; }
+.kpi-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; transition:all .3s ease; position:relative; overflow:hidden; cursor:pointer; }
+.kpi-card::after { content:'View â'; position:absolute; bottom:8px; right:12px; font-size:0.62rem; font-weight:700; color:var(--vs-blue); opacity:0; transition:opacity .2s; letter-spacing:0.05em; }
+.kpi-card:hover::after { opacity:1; }
+.kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:16px 16px 0 0; }
+.kpi-card.blue::before { background:var(--vs-gradient-2); }
+.kpi-card.purple::before { background:var(--vs-gradient-3); }
+.kpi-card.green::before { background:var(--vs-gradient-4); }
+.kpi-card.amber::before { background:linear-gradient(135deg,var(--vs-amber),var(--vs-red)); }
+.kpi-card:hover { border-color:var(--vs-blue); transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,0.3); }
+.kpi-card .kpi-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; margin-bottom:1rem; }
+.kpi-card.blue .kpi-icon { background:rgba(59,130,246,0.15); }
+.kpi-card.purple .kpi-icon { background:rgba(139,92,246,0.15); }
+.kpi-card.green .kpi-icon { background:rgba(16,185,129,0.15); }
+.kpi-card.amber .kpi-icon { background:rgba(245,158,11,0.15); }
+.kpi-card .kpi-value { font-size:2rem; font-weight:800; margin-bottom:0.25rem; }
+.kpi-card .kpi-label { font-size:0.85rem; color:var(--vs-text-muted); }
+
+/* CHARTS */
+.chart-row { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem; }
+.chart-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; }
+.chart-card.full { grid-column:1/-1; }
+.chart-card h3 { font-size:1rem; font-weight:700; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; }
+.chart-wrapper { position:relative; height:320px; }
+.chart-wrapper.tall { height:400px; }
+
+/* TIMELINE ITEMS */
+.timeline-items { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:1rem; }
+.timeline-item { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:12px; padding:1.25rem; transition:all .3s ease; cursor:pointer; position:relative; }
+.timeline-item:hover { border-color:var(--vs-blue); transform:translateY(-2px); box-shadow:0 4px 24px rgba(0,0,0,0.3); }
+.timeline-item .item-header { display:flex; align-items:flex-start; justify-content:space-between; gap:0.75rem; margin-bottom:0.75rem; }
+.timeline-item .item-title { font-size:0.9rem; font-weight:700; line-height:1.3; flex:1; }
+.timeline-item .item-desc { font-size:0.8rem; color:var(--vs-text-muted); line-height:1.5; margin-bottom:0.75rem; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.timeline-item .item-tags { display:flex; flex-wrap:wrap; gap:0.4rem; }
+
+.tag { padding:0.2rem 0.6rem; border-radius:6px; font-size:0.65rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; }
+.tag-area { background:rgba(59,130,246,0.15); color:var(--vs-blue); }
+.tag-area-phone { background:rgba(59,130,246,0.15); color:var(--vs-blue); }
+.tag-area-ci { background:rgba(139,92,246,0.15); color:var(--vs-purple); }
+.tag-area-crm { background:rgba(245,158,11,0.15); color:var(--vs-amber); }
+.tag-area-ai { background:rgba(239,68,68,0.15); color:var(--vs-red); }
+.tag-area-plat { background:rgba(16,185,129,0.15); color:var(--vs-green); }
+.tag-area-other { background:rgba(100,116,139,0.15); color:var(--vs-text-muted); }
+.tag-quarter { background:rgba(139,92,246,0.12); color:var(--vs-purple); }
+.tag-vertical { background:rgba(100,116,139,0.15); color:var(--vs-text-muted); }
+.tag-geo { background:rgba(6,182,212,0.12); color:var(--vs-cyan); }
+.tag-status { border:1px solid var(--vs-border); color:var(--vs-text-dim); }
+.tag-status.deployed { border-color:rgba(16,185,129,0.4); color:var(--vs-green); background:rgba(16,185,129,0.08); }
+.tag-status.progress { border-color:rgba(59,130,246,0.4); color:var(--vs-blue); background:rgba(59,130,246,0.08); }
+.tag-status.backlog { border-color:rgba(245,158,11,0.4); color:var(--vs-amber); background:rgba(245,158,11,0.08); }
+.tag-status.hold { border-color:rgba(239,68,68,0.4); color:var(--vs-red); background:rgba(239,68,68,0.08); }
+.tag-status.ongoing { border-color:rgba(139,92,246,0.4); color:var(--vs-purple); background:rgba(139,92,246,0.08); }
+
+.status-badge { padding:0.25rem 0.65rem; border-radius:6px; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; white-space:nowrap; flex-shrink:0; border:1px solid; }
+.status-badge.deployed { border-color:rgba(16,185,129,0.4); color:var(--vs-green); background:rgba(16,185,129,0.08); }
+.status-badge.progress { border-color:rgba(59,130,246,0.4); color:var(--vs-blue); background:rgba(59,130,246,0.08); }
+.status-badge.backlog { border-color:rgba(245,158,11,0.4); color:var(--vs-amber); background:rgba(245,158,11,0.08); }
+.status-badge.hold { border-color:rgba(239,68,68,0.4); color:var(--vs-red); background:rgba(239,68,68,0.08); }
+.status-badge.ongoing { border-color:rgba(139,92,246,0.4); color:var(--vs-purple); background:rgba(139,92,246,0.08); }
+.status-badge.tbd { border-color:var(--vs-border); color:var(--vs-text-dim); background:rgba(100,116,139,0.08); }
+
+/* FILTERS */
+.filters-bar { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; padding:0.85rem 1rem; background:var(--vs-card); border:1px solid var(--vs-border); border-radius:12px; align-items:center; }
+.filter-group { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; }
+.filter-label { font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--vs-text-dim); margin-right:0.25rem; }
+.filter-chip { padding:0.35rem 0.75rem; border-radius:8px; border:1px solid var(--vs-border); background:transparent; color:var(--vs-text-muted); font-size:0.75rem; font-weight:500; cursor:pointer; transition:all .2s ease; font-family:inherit; }
+.filter-chip:hover { border-color:var(--vs-blue); color:var(--vs-text); }
+.filter-chip.active { background:rgba(59,130,246,0.15); border-color:var(--vs-blue); color:var(--vs-blue); }
+.search-input { flex:1; min-width:200px; padding:0.5rem 1rem; border-radius:8px; border:1px solid var(--vs-border); background:rgba(0,0,0,0.2); color:var(--vs-text); font-size:0.85rem; font-family:inherit; outline:none; transition:border-color .2s; }
+.search-input:focus { border-color:var(--vs-blue); }
+.search-input::placeholder { color:var(--vs-text-dim); }
+
+/* EXEC HIGHLIGHTS */
+.exec-highlights { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-bottom:3rem; }
+.exec-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:2rem; position:relative; overflow:hidden; }
+.exec-card::after { content:''; position:absolute; top:-50%; right:-50%; width:200px; height:200px; border-radius:50%; opacity:0.07; }
+.exec-card.card-blue::after { background:var(--vs-blue); }
+.exec-card.card-purple::after { background:var(--vs-purple); }
+.exec-card.card-green::after { background:var(--vs-green); }
+.exec-card.card-amber::after { background:var(--vs-amber); }
+.exec-card.card-cyan::after { background:var(--vs-cyan); }
+.exec-card h3 { font-size:1.1rem; font-weight:700; margin-bottom:0.75rem; }
+.exec-card ul { list-style:none; font-size:0.85rem; color:var(--vs-text-muted); }
+.exec-card ul li { padding:0.4rem 0; padding-left:1.25rem; position:relative; }
+.exec-card ul li::before { content:'\2192'; position:absolute; left:0; color:var(--vs-blue); font-weight:700; }
+
+/* PROGRESS BARS */
+.progress-section { margin-bottom:2rem; }
+.progress-row { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; }
+.progress-label { width:160px; font-size:0.85rem; font-weight:600; flex-shrink:0; }
+.progress-bar-bg { flex:1; height:28px; background:rgba(0,0,0,0.3); border-radius:14px; overflow:hidden; }
+.progress-bar-fill { height:100%; border-radius:14px; transition:width 1.5s ease; display:flex; align-items:center; padding-left:12px; font-size:0.75rem; font-weight:700; color:#fff; }
+.progress-count { width:50px; text-align:right; font-size:0.85rem; font-weight:700; color:var(--vs-text-muted); }
+
+/* AREA GRID */
+.area-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+.area-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; transition:all .3s ease; position:relative; }
+.area-card:hover { border-color:var(--vs-blue); box-shadow:0 4px 24px rgba(0,0,0,0.3); }
+.area-card .area-count { cursor:pointer; transition:transform .15s; }
+.area-card .area-count:hover { transform:scale(1.1); }
+.area-card .area-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+.area-card .area-name { font-weight:700; font-size:1rem; }
+.area-card .area-count { background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:800; font-size:1.5rem; }
+.area-card .area-items { list-style:none; max-height:280px; overflow-y:auto; }
+.area-card .area-items li { padding:0.5rem 0; border-bottom:1px solid rgba(30,39,69,0.5); font-size:0.82rem; color:var(--vs-text-muted); display:flex; align-items:center; gap:0.5rem; }
+.area-card .area-items li:last-child { border-bottom:none; }
+.bullet { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.bullet-deployed { background:var(--vs-green); }
+.bullet-progress { background:var(--vs-blue); }
+.bullet-backlog { background:var(--vs-amber); }
+.bullet-hold { background:var(--vs-red); }
+.bullet-ongoing { background:var(--vs-purple); }
+.bullet-tbd { background:var(--vs-text-dim); }
+
+/* VERTICAL CARDS */
+.vertical-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; margin-bottom:2rem; }
+.vert-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; text-align:center; transition:all .3s ease; }
+.vert-card:hover { border-color:var(--vs-blue); transform:translateY(-3px); }
+.vert-card .vert-emoji { font-size:2.5rem; margin-bottom:0.75rem; }
+.vert-card .vert-name { font-weight:700; font-size:1rem; margin-bottom:0.25rem; }
+.vert-card .vert-count { font-size:2rem; font-weight:800; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.vert-card .vert-label { font-size:0.75rem; color:var(--vs-text-dim); }
+
+/* TABLE */
+.data-table-wrapper { overflow-x:auto; border-radius:12px; border:1px solid var(--vs-border); }
+.data-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+.data-table th { background:var(--vs-card); padding:0.85rem 1rem; text-align:left; font-weight:700; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--vs-text-muted); border-bottom:1px solid var(--vs-border); position:sticky; top:0; cursor:pointer; user-select:none; }
+.data-table th:hover { color:var(--vs-blue); }
+.data-table td { padding:0.75rem 1rem; border-bottom:1px solid rgba(30,39,69,0.4); color:var(--vs-text-muted); vertical-align:top; }
+.data-table tr:hover td { background:rgba(59,130,246,0.03); }
+.data-table .offering-name { font-weight:600; color:var(--vs-text); max-width:280px; }
+
+/* ANALYTICS â RICH */
+.analytics-insight-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
+.insight-tile { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:14px; padding:1.25rem; position:relative; overflow:hidden; transition:all .3s ease; cursor:pointer; }
+.insight-tile:hover { border-color:var(--vs-blue); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.3); }
+.insight-tile::after { content:'View â'; position:absolute; bottom:8px; right:12px; font-size:0.62rem; font-weight:700; color:var(--vs-blue); opacity:0; transition:opacity .2s; letter-spacing:0.05em; }
+.insight-tile:hover::after { opacity:1; }
+.insight-tile::before { content:''; position:absolute; top:0; left:0; bottom:0; width:3px; }
+.insight-tile.t-blue::before { background:var(--vs-blue); }
+.insight-tile.t-green::before { background:var(--vs-green); }
+.insight-tile.t-amber::before { background:var(--vs-amber); }
+.insight-tile.t-purple::before { background:var(--vs-purple); }
+.insight-tile .it-label { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--vs-text-dim); margin-bottom:0.5rem; }
+.insight-tile .it-value { font-size:1.85rem; font-weight:800; line-height:1.1; margin-bottom:0.25rem; }
+.insight-tile .it-sub { font-size:0.78rem; color:var(--vs-text-muted); display:flex; align-items:center; gap:0.4rem; }
+.insight-tile .it-trend { display:inline-flex; align-items:center; gap:0.25rem; padding:0.15rem 0.45rem; border-radius:5px; font-size:0.7rem; font-weight:700; }
+.insight-tile .it-trend.up { background:rgba(16,185,129,0.15); color:var(--vs-green); }
+.insight-tile .it-trend.down { background:rgba(239,68,68,0.15); color:var(--vs-red); }
+.insight-tile .it-trend.neutral { background:rgba(100,116,139,0.15); color:var(--vs-text-muted); }
+
+.chart-card.rich { padding:0; overflow:hidden; }
+.chart-card.rich .rich-header { padding:1.25rem 1.5rem 0.75rem; display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; }
+.chart-card.rich .rich-header h3 { font-size:1rem; font-weight:700; margin:0; display:flex; align-items:center; gap:0.5rem; }
+.chart-card.rich .rich-header .rh-sub { font-size:0.75rem; color:var(--vs-text-dim); margin-top:0.25rem; }
+.chart-card.rich .rich-header .rh-badge { font-size:0.7rem; font-weight:700; padding:0.25rem 0.6rem; border-radius:6px; background:rgba(59,130,246,0.12); color:var(--vs-blue); border:1px solid rgba(59,130,246,0.25); white-space:nowrap; }
+.chart-card.rich .rich-body { padding:0.5rem 1.5rem 1rem; }
+.chart-card.rich .rich-footer { padding:0.85rem 1.5rem; border-top:1px solid var(--vs-border); background:rgba(0,0,0,0.15); display:flex; align-items:center; gap:0.6rem; font-size:0.78rem; color:var(--vs-text-muted); }
+.chart-card.rich .rich-footer .rf-icon { font-size:0.95rem; }
+.chart-card.rich .rich-footer .rf-text strong { color:var(--vs-text); font-weight:700; }
+
+.donut-wrap { position:relative; display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; align-items:center; }
+.donut-canvas-wrap { position:relative; height:240px; }
+.donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; }
+.donut-center .dc-num { font-size:2.4rem; font-weight:800; line-height:1; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.donut-center .dc-label { font-size:0.7rem; color:var(--vs-text-dim); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.35rem; font-weight:600; }
+.donut-legend { display:flex; flex-direction:column; gap:0.6rem; }
+.dl-item { display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.6rem; background:rgba(255,255,255,0.02); border:1px solid var(--vs-border); border-radius:8px; transition:all .15s; }
+.dl-item:hover { background:rgba(59,130,246,0.05); border-color:rgba(59,130,246,0.3); }
+.dl-swatch { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+.dl-name { flex:1; font-size:0.78rem; font-weight:600; color:var(--vs-text); }
+.dl-count { font-size:0.78rem; font-weight:700; color:var(--vs-text); }
+.dl-pct { font-size:0.7rem; color:var(--vs-text-dim); min-width:36px; text-align:right; }
+
+.bar-list { display:flex; flex-direction:column; gap:0.85rem; }
+.bar-row { display:grid; grid-template-columns:120px 1fr 60px; align-items:center; gap:0.75rem; }
+.bar-row .br-label { font-size:0.82rem; font-weight:600; color:var(--vs-text); display:flex; align-items:center; gap:0.4rem; }
+.bar-row .br-emoji { font-size:0.9rem; }
+.bar-row .br-track { height:24px; background:rgba(0,0,0,0.3); border-radius:12px; overflow:hidden; position:relative; }
+.bar-row .br-fill { height:100%; border-radius:12px; position:relative; transition:width 1.2s cubic-bezier(.4,0,.2,1); display:flex; align-items:center; justify-content:flex-end; padding-right:0.6rem; min-width:fit-content; }
+.bar-row .br-fill .br-num { font-size:0.7rem; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.4); white-space:nowrap; }
+.bar-row .br-pct { font-size:0.78rem; font-weight:700; color:var(--vs-text-muted); text-align:right; }
+
+.bar-list.stacked .br-track { display:flex; }
+.bar-list.stacked .br-seg { height:100%; transition:width 1.2s ease; position:relative; }
+.bar-list.stacked .br-seg:first-child { border-radius:12px 0 0 12px; }
+.bar-list.stacked .br-seg:last-child { border-radius:0 12px 12px 0; }
+.bar-list.stacked .br-seg:only-child { border-radius:12px; }
+.bar-list.stacked .br-seg-num { font-size:0.65rem; font-weight:700; color:#fff; line-height:24px; padding:0 0.3rem; }
+.stacked-legend { display:flex; flex-wrap:wrap; gap:0.75rem; margin-top:1rem; padding-top:0.85rem; border-top:1px solid var(--vs-border); }
+.sl-chip { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.72rem; color:var(--vs-text-muted); }
+.sl-chip .sl-dot { width:9px; height:9px; border-radius:3px; }
+
+/* Heatmap matrix */
+.matrix-wrap { overflow-x:auto; }
+.matrix-table { width:100%; border-collapse:separate; border-spacing:4px; font-size:0.78rem; }
+.matrix-table th { padding:0.5rem 0.6rem; font-weight:700; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--vs-text-muted); text-align:center; }
+.matrix-table th.row-h { text-align:left; min-width:130px; }
+.matrix-table td { padding:0.5rem 0.6rem; text-align:center; border-radius:8px; font-weight:700; font-variant-numeric:tabular-nums; transition:transform .15s; cursor:default; }
+.matrix-table td.row-h { background:rgba(255,255,255,0.02); border:1px solid var(--vs-border); text-align:left; font-weight:600; color:var(--vs-text); cursor:default; }
+.matrix-table td.cell:hover { transform:scale(1.05); }
+.matrix-table td.total { background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3); color:var(--vs-blue); }
+.matrix-table tr.total-row td { background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); color:var(--vs-blue); }
+
+/* Geo cards */
+.geo-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:0.85rem; }
+.geo-card { background:rgba(255,255,255,0.02); border:1px solid var(--vs-border); border-radius:12px; padding:1rem; text-align:center; position:relative; overflow:hidden; transition:all .25s; cursor:pointer; }
+.geo-card:hover { border-color:var(--vs-cyan); transform:translateY(-3px); box-shadow:0 6px 20px rgba(6,182,212,0.15); }
+.geo-card::after { content:'View â'; position:absolute; bottom:6px; right:10px; font-size:0.58rem; font-weight:700; color:var(--vs-cyan); opacity:0; transition:opacity .2s; letter-spacing:0.05em; }
+.geo-card:hover::after { opacity:1; }
+.geo-card .geo-flag { font-size:2rem; margin-bottom:0.5rem; }
+.geo-card .geo-name { font-size:0.85rem; font-weight:700; color:var(--vs-text); margin-bottom:0.5rem; }
+.geo-card .geo-num { font-size:1.85rem; font-weight:800; background:var(--vs-gradient-2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1; }
+.geo-card .geo-bar { height:4px; background:rgba(0,0,0,0.3); border-radius:2px; margin-top:0.75rem; overflow:hidden; }
+.geo-card .geo-bar-fill { height:100%; background:var(--vs-gradient-2); border-radius:2px; transition:width 1.2s ease; }
+.geo-card .geo-pct { font-size:0.7rem; color:var(--vs-text-dim); margin-top:0.4rem; }
+
+/* VERTICALS â RICH */
+.vert-rich-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
+.vert-rich-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; transition:all .3s ease; cursor:pointer; position:relative; overflow:hidden; }
+.vert-rich-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.vert-rich-card.v-dental::before { background:linear-gradient(90deg,#3b82f6,#06b6d4); }
+.vert-rich-card.v-pt::before { background:linear-gradient(90deg,#8b5cf6,#ec4899); }
+.vert-rich-card.v-optom::before { background:linear-gradient(90deg,#10b981,#06b6d4); }
+.vert-rich-card.v-vet::before { background:linear-gradient(90deg,#f59e0b,#ef4444); }
+.vert-rich-card:hover { border-color:var(--vs-blue); transform:translateY(-3px); box-shadow:0 8px 28px rgba(0,0,0,0.4); }
+.vert-rich-card.selected { border-color:var(--vs-blue); box-shadow:0 0 0 1px var(--vs-blue); background:rgba(59,130,246,0.05); }
+.vert-rich-card .vrc-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1rem; }
+.vert-rich-card .vrc-emoji { font-size:2.25rem; line-height:1; }
+.vert-rich-card .vrc-num { font-size:2.4rem; font-weight:800; line-height:1; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.vert-rich-card .vrc-name { font-size:0.95rem; font-weight:700; color:var(--vs-text); margin-bottom:0.15rem; }
+.vert-rich-card .vrc-sub { font-size:0.72rem; color:var(--vs-text-dim); margin-bottom:1rem; }
+.vert-rich-card .vrc-status-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.4rem; margin-bottom:0.85rem; }
+.vert-rich-card .vrc-stat { background:rgba(255,255,255,0.02); border:1px solid var(--vs-border); border-radius:8px; padding:0.4rem 0.5rem; text-align:center; }
+.vert-rich-card .vrc-stat .vs-num { font-size:1rem; font-weight:800; line-height:1; }
+.vert-rich-card .vrc-stat .vs-lbl { font-size:0.6rem; color:var(--vs-text-dim); text-transform:uppercase; letter-spacing:0.05em; margin-top:0.25rem; font-weight:600; }
+.vert-rich-card .vrc-stat.dep .vs-num { color:var(--vs-green); }
+.vert-rich-card .vrc-stat.ip .vs-num { color:var(--vs-blue); }
+.vert-rich-card .vrc-stat.bl .vs-num { color:var(--vs-amber); }
+.vert-rich-card .vrc-progress { height:6px; background:rgba(0,0,0,0.3); border-radius:3px; overflow:hidden; margin-bottom:0.4rem; display:flex; }
+.vert-rich-card .vrc-progress .vp-seg { height:100%; transition:width 1.2s ease; }
+.vert-rich-card .vrc-progress-meta { display:flex; justify-content:space-between; font-size:0.68rem; color:var(--vs-text-dim); margin-bottom:0.85rem; }
+.vert-rich-card .vrc-areas { font-size:0.7rem; color:var(--vs-text-muted); margin-bottom:0.85rem; }
+.vert-rich-card .vrc-areas strong { color:var(--vs-text); font-weight:600; }
+.vert-rich-card .vrc-cta { display:flex; align-items:center; justify-content:space-between; padding-top:0.75rem; border-top:1px solid var(--vs-border); font-size:0.72rem; font-weight:600; color:var(--vs-blue); }
+.vert-rich-card .vrc-cta .vrc-arrow { transition:transform .2s; }
+.vert-rich-card:hover .vrc-cta .vrc-arrow { transform:translateX(3px); }
+
+/* Vert Ã Area heatmap */
+.vert-heatmap-wrap { overflow-x:auto; }
+
+/* Drilldown panel */
+.vert-drilldown { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; margin-top:2rem; display:none; }
+.vert-drilldown.show { display:block; animation:fadeInUp .4s ease; }
+.vd-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; flex-wrap:wrap; }
+.vd-header .vd-emoji { font-size:2rem; }
+.vd-header .vd-title { flex:1; }
+.vd-header .vd-title h3 { font-size:1.2rem; font-weight:700; margin-bottom:0.2rem; }
+.vd-header .vd-title p { font-size:0.78rem; color:var(--vs-text-muted); }
+.vd-header .vd-close { background:rgba(255,255,255,0.04); border:1px solid var(--vs-border); color:var(--vs-text-muted); padding:0.45rem 0.85rem; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.78rem; }
+.vd-header .vd-close:hover { color:var(--vs-text); border-color:var(--vs-blue); }
+.vd-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.75rem; margin-bottom:1.25rem; }
+.vd-stat { background:rgba(0,0,0,0.2); border:1px solid var(--vs-border); border-radius:10px; padding:0.85rem; text-align:center; cursor:pointer; transition:all .15s; }
+.vd-stat:hover { border-color:var(--vs-blue); transform:translateY(-2px); }
+.vd-stat .vds-n { font-size:1.4rem; font-weight:800; line-height:1; }
+.vd-stat .vds-l { font-size:0.65rem; color:var(--vs-text-dim); text-transform:uppercase; letter-spacing:0.06em; margin-top:0.3rem; font-weight:600; }
+.vd-stat.dep .vds-n { color:var(--vs-green); }
+.vd-stat.ip .vds-n { color:var(--vs-blue); }
+.vd-stat.bl .vds-n { color:var(--vs-amber); }
+.vd-filter-bar { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; align-items:center; }
+.vd-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:0.75rem; max-height:500px; overflow-y:auto; padding-right:0.5rem; }
+
+/* SCROLL ANIMS */
+.animate-on-scroll { opacity:0; transform:translateY(30px); transition:opacity .6s ease,transform .6s ease; }
+.animate-on-scroll.visible { opacity:1; transform:translateY(0); }
+
+/* MODAL */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center; padding:2rem; }
+.modal-overlay.show { display:flex; }
+.modal-content { background:var(--vs-navy); border:1px solid var(--vs-border); border-radius:20px; max-width:700px; width:100%; max-height:85vh; overflow-y:auto; padding:2rem; }
+.modal-content h2 { font-size:1.25rem; margin-bottom:1rem; padding-right:2rem; }
+.modal-close { float:right; background:none; border:none; color:var(--vs-text-muted); font-size:1.5rem; cursor:pointer; }
+.modal-close:hover { color:var(--vs-text); }
+.modal-field { margin-bottom:1rem; }
+.modal-field .field-label { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--vs-text-dim); margin-bottom:0.25rem; }
+.modal-field .field-value { font-size:0.9rem; color:var(--vs-text); line-height:1.6; }
+
+/* FOOTER */
+.dashboard-footer { text-align:center; padding:3rem 2rem; border-top:1px solid var(--vs-border); color:var(--vs-text-dim); font-size:0.8rem; }
+.dashboard-footer .footer-logo { font-size:1.25rem; font-weight:800; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.5rem; }
+
+/* RESPONSIVE */
+@media(max-width:900px) { .exec-highlights{grid-template-columns:1fr;} }
+@media(max-width:768px) { .hero-stats{grid-template-columns:repeat(2,1fr);} .chart-row{grid-template-columns:1fr;} .timeline-items{grid-template-columns:1fr;} .section{padding:2rem 1rem;} .filters-bar{flex-direction:column;align-items:stretch;} .vertical-cards{grid-template-columns:repeat(2,1fr);} .quarter-nav{justify-content:center;} }
+
+/* Empty state */
+.empty-state { text-align:center; padding:3rem; color:var(--vs-text-dim); }
+.empty-state .empty-icon { font-size:3rem; margin-bottom:1rem; opacity:0.5; }
+.empty-state p { font-size:0.9rem; }
+</style>
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+<div class="content-wrapper">
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span> Product Roadmap 2026 &middot; Updated April 2026</div>
+    <h1><span class="gradient-text">VoiceStack</span><br>2026 Roadmap</h1>
+    <p class="subtitle">A unified view of every initiative across Phone System, Call Intelligence, CRM, AI Agents and Platform &mdash; powering the most advanced AI communication stack for healthcare.</p>
+    <div class="hero-stats">
+      <div class="hero-stat" onclick="jumpToTimeline()" title="View all initiatives in Timeline"><div class="number" id="heroTotal">0</div><div class="label">Total Initiatives</div></div>
+      <div class="hero-stat" onclick="jumpToTimeline({status:'Deployed'})" title="Filter Timeline by Deployed"><div class="number" id="heroDeployed">0</div><div class="label">Deployed</div></div>
+      <div class="hero-stat" onclick="jumpToTimeline({status:'In Progress'})" title="Filter Timeline by In Progress"><div class="number" id="heroProgress">0</div><div class="label">In Progress</div></div>
+      <div class="hero-stat" onclick="jumpToTimeline({status:'Backlog'})" title="Filter Timeline by Backlog"><div class="number" id="heroBacklog">0</div><div class="label">In Backlog</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE NAV -->
+<nav class="sticky-nav">
+  <div class="nav-bar">
+    <div class="nav-inner">
+      <span class="nav-logo">VS 2026</span>
+      <button class="nav-btn active" onclick="navigateTo('quarterly-view', this)">Quarter View</button>
+      <button class="nav-btn" onclick="navigateTo('executive', this)">Executive Summary</button>
+      <button class="nav-btn" onclick="navigateTo('analytics', this)">Analytics</button>
+      <button class="nav-btn" onclick="navigateTo('verticals', this)">Verticals</button>
+      <button class="nav-btn" onclick="navigateTo('timeline', this)">Timeline</button>
+      <button class="nav-btn" onclick="navigateTo('areas', this)">By Area</button>
+      <button class="nav-btn" onclick="navigateTo('all-items', this)">Full Registry</button>
+    </div>
+    <div class="universal-search">
+      <span class="universal-search-icon">&#128269;</span>
+      <input type="text" class="universal-search-input" id="universalSearch" placeholder="Search all initiatives..." autocomplete="off" oninput="runUniversalSearch()" onfocus="runUniversalSearch()" onkeydown="universalSearchKey(event)">
+      <span class="universal-search-shortcut" id="usSc">&#8984;K</span>
+      <div class="universal-search-dropdown" id="usDropdown"></div>
+    </div>
+  </div>
+</nav>
+
+<!-- QUARTERLY VIEW -->
+<section class="section" id="quarterly-view">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">Quarter-by-Quarter View</div>
+    <h2 class="section-title">What's Shipping &amp; When</h2>
+    <p class="section-subtitle">Track what's been deployed, what's in progress, and what's coming up. Items are grouped by their target release quarter.</p>
+  </div>
+  <div class="quarter-nav" id="quarterNav"></div>
+  <div id="quarterViewContent"></div>
+</section>
+
+<!-- EXECUTIVE SUMMARY -->
+<section class="section" id="executive">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">Executive Summary</div>
+    <h2 class="section-title">Strategic Pillars of 2026</h2>
+    <p class="section-subtitle">Five focused investment areas designed to accelerate growth, deepen AI capabilities, and expand market reach.</p>
+  </div>
+  <div class="exec-highlights animate-on-scroll">
+    <div class="exec-card card-blue">
+      <h3>&#9742; Phone System &amp; Call Center</h3>
+      <ul>
+        <li>Outbound Dialer V1 with Preview, Power &amp; Voice Broadcast</li>
+        <li>Call Conferencing, Whisper, Barge &amp; Call Flip</li>
+        <li>Simultaneous Multi-Device Ringing</li>
+        <li>Location-Level Call Redirection Modes</li>
+        <li>Emergency Voicemail Delivery System</li>
+        <li>VIP Priority Routing &amp; Sticky Agent</li>
+        <li>Wallboard 2.0 with Historical Analytics</li>
+      </ul>
+    </div>
+    <div class="exec-card card-purple">
+      <h3>&#129302; AI Agents &amp; Call Intelligence</h3>
+      <ul>
+        <li>Inbound Voice Bots for Dental, PT, Vet</li>
+        <li>OneAPI integrations: Open Dental, Eaglesoft, Denticon, Dentally</li>
+        <li>Reimagined Call Scoring with Custom Rubrics</li>
+        <li>PO Improvements &amp; Conversion Probability</li>
+        <li>Agent Voice Detection via Vocal Biometrics</li>
+        <li>Bot Builder Platform &amp; Bot Analytics</li>
+      </ul>
+    </div>
+    <div class="exec-card card-green">
+      <h3>&#128200; CRM &amp; Customer Engagement</h3>
+      <ul>
+        <li>CRM Contact Book Phase 1 with PMS Sync</li>
+        <li>CRM Tags, Linked Contacts &amp; Contact Merging</li>
+        <li>P360 Revamp &amp; Activity Logging</li>
+        <li>Email, WhatsApp &amp; Facebook as Channels</li>
+        <li>Website Forms &amp; Embeddable Chatbot</li>
+        <li>Advanced Automation Workflow Editor</li>
+      </ul>
+    </div>
+    <div class="exec-card card-amber">
+      <h3>&#128279; Integrations &amp; OneAPI</h3>
+      <ul>
+        <li>Bitwerx (Vet) &mdash; opens up ezyVet, Covetrus &amp; more</li>
+        <li>EmpowerEMR (PT) &amp; Prompt EMR Bot Integration</li>
+        <li>Dentrix Ascend / Core Neo Inbound Bot</li>
+        <li>Patient Records Middleware &amp; Caching Layer</li>
+        <li>Vision EHR Integrations #2 &amp; #3</li>
+        <li>Practice Dilly &amp; CareStack Short Code Sync</li>
+      </ul>
+    </div>
+    <div class="exec-card card-cyan">
+      <h3>&#128202; Analytics &amp; Platform</h3>
+      <ul>
+        <li>Appointment Linking &amp; Revenue Analytics</li>
+        <li>DNI Dashboard &amp; Configuration Improvements</li>
+        <li>Bot Analytics &amp; Bot Call Flow Logs</li>
+        <li>Scheduled Reports &amp; Admin Digest</li>
+        <li>Date Range Limits / Data Archival</li>
+        <li>Audit Logs &amp; RBAC for Enterprise</li>
+      </ul>
+    </div>
+    <div class="exec-card card-blue">
+      <h3>&#128241; Mobile &amp; Agent Experience</h3>
+      <ul>
+        <li>Contact Book on Mobile &amp; Tasks on Mobile</li>
+        <li>Search in Mobile App &amp; DND on Mobile</li>
+        <li>Internal Chat between Agents</li>
+        <li>Headset Answering &amp; Call Flip</li>
+        <li>Saved Table Columns &amp; Sorting Preferences</li>
+        <li>Jump Pages in Agent Application</li>
+      </ul>
+    </div>
+  </div>
+  <div class="kpi-grid animate-on-scroll" id="execKpiGrid"></div>
+  <div class="chart-card full animate-on-scroll">
+    <h3>&#128203; Status Distribution</h3>
+    <div class="progress-section" id="statusProgressSection"></div>
+  </div>
+</section>
+
+<!-- ANALYTICS -->
+<section class="section" id="analytics">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">Analytics Deep Dive</div>
+    <h2 class="section-title">Roadmap Composition</h2>
+    <p class="section-subtitle">Visual breakdowns of where the 2026 effort is concentrated &mdash; by area, quarter, geography, and status.</p>
+  </div>
+
+  <!-- INSIGHT STRIP -->
+  <div class="analytics-insight-strip animate-on-scroll" id="insightStrip"></div>
+
+  <!-- ROW 1: STATUS DOUGHNUT + QUARTER PROGRESS -->
+  <div class="chart-row animate-on-scroll">
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#127919; Delivery Status</h3>
+          <div class="rh-sub">Where every initiative stands today</div>
+        </div>
+        <span class="rh-badge" id="statusBadge">â</span>
+      </div>
+      <div class="rich-body">
+        <div class="donut-wrap">
+          <div class="donut-canvas-wrap">
+            <canvas id="chartStatus"></canvas>
+            <div class="donut-center">
+              <div class="dc-num" id="donutCenterNum">0</div>
+              <div class="dc-label">Total</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="statusLegend"></div>
+        </div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#128161;</span>
+        <span class="rf-text" id="statusInsight">â</span>
+      </div>
+    </div>
+
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#128197; Quarterly Cadence</h3>
+          <div class="rh-sub">Volume per quarter, segmented by status</div>
+        </div>
+        <span class="rh-badge" id="quarterBadge">â</span>
+      </div>
+      <div class="rich-body">
+        <div class="bar-list stacked" id="quarterBarList"></div>
+        <div class="stacked-legend" id="quarterLegend"></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#128202;</span>
+        <span class="rf-text" id="quarterInsight">â</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: GEOGRAPHY + STATUS x AREA HEATMAP -->
+  <div class="chart-row animate-on-scroll">
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#127757; Geographic Reach</h3>
+          <div class="rh-sub">Initiatives launching in each region</div>
+        </div>
+        <span class="rh-badge" id="geoBadge">â</span>
+      </div>
+      <div class="rich-body">
+        <div class="geo-grid" id="geoGrid"></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#127760;</span>
+        <span class="rf-text" id="geoInsight">â</span>
+      </div>
+    </div>
+
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#129668; Area &times; Status Matrix</h3>
+          <div class="rh-sub">A heatmap of progress within each product area</div>
+        </div>
+        <span class="rh-badge">Heatmap</span>
+      </div>
+      <div class="rich-body">
+        <div class="matrix-wrap"><table class="matrix-table" id="matrixTable"></table></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#128293;</span>
+        <span class="rf-text" id="matrixInsight">â</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 3: AREA RANKING -->
+  <div class="chart-row animate-on-scroll">
+    <div class="chart-card rich full">
+      <div class="rich-header">
+        <div>
+          <h3>&#127981; Initiatives by Area</h3>
+          <div class="rh-sub">Stacked by status &mdash; see how each area is progressing</div>
+        </div>
+        <span class="rh-badge" id="areaBadge">â</span>
+      </div>
+      <div class="rich-body">
+        <div class="bar-list stacked" id="areaBarList"></div>
+        <div class="stacked-legend" id="areaLegend"></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#127942;</span>
+        <span class="rf-text" id="areaInsight">â</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VERTICALS -->
+<section class="section" id="verticals">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">Market Coverage</div>
+    <h2 class="section-title">Vertical-Specific Initiatives</h2>
+    <p class="section-subtitle">Coverage and feature density across the four core healthcare verticals VoiceStack serves. Click any vertical card to drill into its full initiative list.</p>
+  </div>
+
+  <!-- INSIGHT STRIP -->
+  <div class="analytics-insight-strip animate-on-scroll" id="vertInsightStrip"></div>
+
+  <!-- RICH VERTICAL CARDS (clickable for drilldown) -->
+  <div class="vert-rich-grid animate-on-scroll" id="vertRichGrid"></div>
+
+  <!-- DRILLDOWN PANEL -->
+  <div class="vert-drilldown animate-on-scroll" id="vertDrilldown">
+    <div class="vd-header">
+      <div class="vd-emoji" id="vdEmoji"></div>
+      <div class="vd-title">
+        <h3 id="vdTitle"></h3>
+        <p id="vdSub"></p>
+      </div>
+      <button class="vd-close" onclick="closeVertDrilldown()">&times; Close</button>
+    </div>
+    <div class="vd-stats" id="vdStats"></div>
+    <div class="vd-filter-bar" id="vdFilterBar"></div>
+    <div class="vd-list" id="vdList"></div>
+  </div>
+
+  <!-- VERT Ã AREA HEATMAP + COVERAGE BREAKDOWN -->
+  <div class="chart-row animate-on-scroll">
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#129668; Vertical &times; Area Coverage</h3>
+          <div class="rh-sub">Where each vertical is invested across product areas</div>
+        </div>
+        <span class="rh-badge">Heatmap</span>
+      </div>
+      <div class="rich-body">
+        <div class="vert-heatmap-wrap"><table class="matrix-table" id="vertMatrixTable"></table></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#128293;</span>
+        <span class="rf-text" id="vertMatrixInsight">&mdash;</span>
+      </div>
+    </div>
+
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#128202; Status Mix per Vertical</h3>
+          <div class="rh-sub">How far along each vertical is in its 2026 plan</div>
+        </div>
+        <span class="rh-badge" id="vertStatusBadge">&mdash;</span>
+      </div>
+      <div class="rich-body">
+        <div class="bar-list stacked" id="vertStatusBarList"></div>
+        <div class="stacked-legend" id="vertStatusLegend"></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#127919;</span>
+        <span class="rf-text" id="vertStatusInsight">&mdash;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE COVERAGE CHART -->
+  <div class="chart-row animate-on-scroll">
+    <div class="chart-card rich full">
+      <div class="rich-header">
+        <div>
+          <h3>&#127919; Feature Coverage Across Verticals</h3>
+          <div class="rh-sub">Total initiatives applicable to each vertical (includes "All" tagged items)</div>
+        </div>
+        <span class="rh-badge">Bar Chart</span>
+      </div>
+      <div class="rich-body"><div class="chart-wrapper tall"><canvas id="chartVerticals"></canvas></div></div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#128200;</span>
+        <span class="rf-text" id="vertChartInsight">&mdash;</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="section" id="timeline">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">Full Timeline</div>
+    <h2 class="section-title">All Items by Quarter</h2>
+    <p class="section-subtitle">Filter by status, area, or search by name to find any initiative on the roadmap.</p>
+  </div>
+  <div class="filters-bar animate-on-scroll">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search initiatives..." oninput="renderTimeline()">
+    <div class="filter-group">
+      <span class="filter-label">Status:</span>
+      <button class="filter-chip active" data-filter="status" data-value="all" onclick="setFilter(this)">All</button>
+      <button class="filter-chip" data-filter="status" data-value="Deployed" onclick="setFilter(this)">Deployed</button>
+      <button class="filter-chip" data-filter="status" data-value="In Progress" onclick="setFilter(this)">In Progress</button>
+      <button class="filter-chip" data-filter="status" data-value="Backlog" onclick="setFilter(this)">Backlog</button>
+      <button class="filter-chip" data-filter="status" data-value="On Hold" onclick="setFilter(this)">On Hold</button>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Area:</span>
+      <button class="filter-chip active" data-filter="area" data-value="all" onclick="setFilter(this)">All</button>
+      <button class="filter-chip" data-filter="area" data-value="Phone System" onclick="setFilter(this)">Phone</button>
+      <button class="filter-chip" data-filter="area" data-value="Call Intelligence" onclick="setFilter(this)">CI</button>
+      <button class="filter-chip" data-filter="area" data-value="CRM" onclick="setFilter(this)">CRM</button>
+      <button class="filter-chip" data-filter="area" data-value="AI Agents" onclick="setFilter(this)">AI</button>
+      <button class="filter-chip" data-filter="area" data-value="Platform" onclick="setFilter(this)">Platform</button>
+    </div>
+  </div>
+  <div id="timelineContainer"></div>
+</section>
+
+<!-- AREAS -->
+<section class="section" id="areas">
+  <div class="section-header animate-on-scroll"><div class="section-label">Product Areas</div><h2 class="section-title">Breakdown by Area</h2><p class="section-subtitle">A complete index of every initiative grouped by product area.</p></div>
+  <div class="area-grid animate-on-scroll" id="areaGrid"></div>
+</section>
+
+<!-- FULL REGISTRY -->
+<section class="section" id="all-items">
+  <div class="section-header animate-on-scroll"><div class="section-label">Complete Registry</div><h2 class="section-title" id="registryTitle">All Roadmap Items</h2><p class="section-subtitle">Every item from the 2026 plan in a sortable, searchable table.</p></div>
+  <div class="filters-bar animate-on-scroll">
+    <input type="text" class="search-input" id="tableSearchInput" placeholder="Filter table rows..." oninput="filterTable()">
+  </div>
+  <div class="data-table-wrapper animate-on-scroll">
+    <table class="data-table" id="fullTable">
+      <thead><tr>
+        <th onclick="sortTable(0)">#</th>
+        <th onclick="sortTable(1)">Offering &#8597;</th>
+        <th onclick="sortTable(2)">Area &#8597;</th>
+        <th onclick="sortTable(3)">Quarter &#8597;</th>
+        <th onclick="sortTable(4)">Status &#8597;</th>
+        <th onclick="sortTable(5)">Vertical</th>
+        <th onclick="sortTable(6)">Geo</th>
+      </tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="itemModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h2 id="modalTitle"></h2>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="dashboard-footer">
+  <div class="footer-logo">VoiceStack</div>
+  <p>Product Roadmap 2026 &middot; Internal &middot; Last updated April 2026</p>
+</footer>
+
+</div>
+
+<script>
