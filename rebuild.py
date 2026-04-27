@@ -50,9 +50,9 @@ for r in rows:
 
 print(f"Parsed {len(items)} items from CSV")
 
-with open("template_before.html", encoding="utf-8") as f:
+with open("template_before.html") as f:
     before = f.read()
-with open("template_after.html", encoding="utf-8") as f:
+with open("template_after.html") as f:
     after = f.read()
 
 today = datetime.now().strftime("%B %Y")
@@ -60,7 +60,6 @@ data_js = "const DATA = " + json.dumps(items, ensure_ascii=False) + ";"
 html = before + data_js + after
 html = re.sub(r"Last updated \w+ \d{4}", f"Last updated {today}", html)
 
-with open("index.html", "w", encoding="utf-8") as f:
+with open("index.html", "w") as f:
     f.write(html)
-
 print(f"index.html rebuilt ({len(html):,} bytes)")
