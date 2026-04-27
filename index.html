@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceStack 2026 Product Roadmap</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --vs-dark: #0a0e1a;
+  --vs-navy: #0f1629;
+  --vs-card: #151b30;
+  --vs-card-hover: #1a2240;
+  --vs-border: #1e2745;
+  --vs-blue: #3b82f6;
+  --vs-blue-glow: rgba(59,130,246,0.25);
+  --vs-purple: #8b5cf6;
+  --vs-purple-glow: rgba(139,92,246,0.2);
+  --vs-cyan: #06b6d4;
+  --vs-green: #10b981;
+  --vs-amber: #f59e0b;
+  --vs-red: #ef4444;
+  --vs-pink: #ec4899;
+  --vs-text: #e2e8f0;
+  --vs-text-muted: #94a3b8;
+  --vs-text-dim: #64748b;
+  --vs-gradient-1: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --vs-gradient-2: linear-gradient(135deg, #06b6d4, #3b82f6);
+  --vs-gradient-3: linear-gradient(135deg, #8b5cf6, #ec4899);
+  --vs-gradient-4: linear-gradient(135deg, #10b981, #06b6d4);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--vs-dark); color:var(--vs-text); line-height:1.6; overflow-x:hidden; }
+.noise-overlay { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.03; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+.content-wrapper { position:relative; z-index:1; }
+
+/* HERO */
+.hero { position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; padding:2rem; overflow:hidden; }
+.hero::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(ellipse at 30% 20%,rgba(59,130,246,0.15) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(139,92,246,0.12) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(6,182,212,0.08) 0%,transparent 60%); animation:heroGlow 12s ease-in-out infinite alternate; }
+@keyframes heroGlow { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(-3%,-2%) scale(1.05)} }
+.hero-content { position:relative; z-index:2; max-width:900px; }
+.hero-badge { display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1.25rem; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); border-radius:100px; font-size:0.8rem; font-weight:600; color:var(--vs-blue); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:2rem; animation:fadeInUp .8s ease; }
+.hero-badge .dot { width:8px; height:8px; background:var(--vs-green); border-radius:50%; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+.hero h1 { font-size:clamp(2.5rem,6vw,5rem); font-weight:900; line-height:1.1; margin-bottom:1.5rem; animation:fadeInUp .8s ease .1s both; }
+.hero h1 .gradient-text { background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero .subtitle { font-size:clamp(1rem,2vw,1.35rem); color:var(--vs-text-muted); max-width:700px; margin:0 auto 3rem; animation:fadeInUp .8s ease .2s both; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.hero-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; animation:fadeInUp .8s ease .3s both; }
+.hero-stat { background:rgba(21,27,48,0.7); backdrop-filter:blur(20px); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem 1rem; transition:all .3s ease; cursor:pointer; position:relative; }
+.hero-stat:hover { border-color:var(--vs-blue); transform:translateY(-4px); box-shadow:0 8px 32px var(--vs-blue-glow); }
+.hero-stat::after { content:'View →'; position:absolute; bottom:6px; right:10px; font-size:0.62rem; font-weight:700; color:var(--vs-blue); opacity:0; transition:opacity .2s; letter-spacing:0.05em; }
+.hero-stat:hover::after { opacity:1; }
+.hero-stat .number { font-size:2.5rem; font-weight:800; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero-stat .label { font-size:0.8rem; color:var(--vs-text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-top:0.25rem; }
+
+/* NAV */
+.sticky-nav { position:sticky; top:0; z-index:100; background:rgba(10,14,26,0.85); backdrop-filter:blur(20px); border-bottom:1px solid var(--vs-border); }
+.nav-inner { max-width:1400px; margin:0 auto; display:flex; align-items:center; gap:0.5rem; padding:0.75rem 2rem; overflow-x:auto; scrollbar-width:none; }
+.nav-inner::-webkit-scrollbar { display:none; }
+.nav-logo { font-size:1rem; font-weight:800; white-space:nowrap; margin-right:1rem; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.nav-btn { padding:0.5rem 1rem; border-radius:8px; border:1px solid transparent; background:transparent; color:var(--vs-text-muted); font-size:0.8rem; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .2s ease; font-family:inherit; }
+.nav-btn:hover,.nav-btn.active { background:rgba(59,130,246,0.1); border-color:rgba(59,130,246,0.3); color:var(--vs-blue); }
+
+/* NAV BAR LAYOUT (with universal search) */
+.nav-bar { max-width:1400px; margin:0 auto; padding:0.6rem 1.25rem; display:flex; align-items:center; gap:0.85rem; }
+.nav-bar .nav-inner { flex:1; padding:0; min-width:0; max-width:none; margin:0; }
+.universal-search { position:relative; flex-shrink:0; }
+.universal-search-input { width:230px; padding:0.5rem 3.4rem 0.5rem 2.2rem; border-radius:8px; border:1px solid var(--vs-border); background:rgba(0,0,0,0.35); color:var(--vs-text); font-size:0.82rem; outline:none; font-family:inherit; transition:width .25s, border-color .2s, box-shadow .2s; }
+.universal-search-input:focus { border-color:var(--vs-blue); width:340px; box-shadow:0 0 0 3px var(--vs-blue-glow); background:rgba(15,22,41,0.95); }
+.universal-search-input::placeholder { color:var(--vs-text-dim); }
+.universal-search-icon { position:absolute; left:0.65rem; top:50%; transform:translateY(-50%); color:var(--vs-text-dim); font-size:0.85rem; pointer-events:none; line-height:1; }
+.universal-search-shortcut { position:absolute; right:0.5rem; top:50%; transform:translateY(-50%); font-size:0.62rem; padding:0.15rem 0.4rem; border-radius:4px; background:rgba(255,255,255,0.05); color:var(--vs-text-dim); border:1px solid var(--vs-border); pointer-events:none; font-weight:600; letter-spacing:0.04em; }
+.universal-search-input:focus ~ .universal-search-shortcut { opacity:0; }
+
+.universal-search-dropdown { position:absolute; top:calc(100% + 6px); right:0; width:520px; max-height:520px; overflow-y:auto; background:var(--vs-navy); border:1px solid var(--vs-border); border-radius:12px; box-shadow:0 16px 48px rgba(0,0,0,0.7); z-index:300; display:none; }
+.universal-search-dropdown.show { display:block; animation:fadeInUp .2s ease; }
+.usd-header { padding:0.7rem 1rem; font-size:0.72rem; color:var(--vs-text-muted); border-bottom:1px solid var(--vs-border); display:flex; justify-content:space-between; align-items:center; gap:0.75rem; background:rgba(0,0,0,0.2); position:sticky; top:0; }
+.usd-header strong { color:var(--vs-blue); font-weight:700; }
+.usd-action { background:none; border:1px solid var(--vs-border); border-radius:6px; padding:0.3rem 0.7rem; color:var(--vs-text-muted); font-size:0.7rem; cursor:pointer; font-family:inherit; font-weight:600; transition:all .15s; white-space:nowrap; }
+.usd-action:hover { color:var(--vs-blue); border-color:var(--vs-blue); background:rgba(59,130,246,0.06); }
+.usd-result { padding:0.85rem 1rem; cursor:pointer; border-bottom:1px solid rgba(30,39,69,0.4); transition:background .12s; }
+.usd-result:hover, .usd-result.focused { background:rgba(59,130,246,0.08); }
+.usd-result:last-child { border-bottom:none; }
+.usd-r-top { display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.35rem; }
+.usd-r-name { font-size:0.85rem; font-weight:700; color:var(--vs-text); flex:1; line-height:1.3; }
+.usd-r-name mark, .usd-r-desc mark { background:rgba(59,130,246,0.3); color:var(--vs-text); padding:0 2px; border-radius:2px; font-weight:700; }
+.usd-r-desc { font-size:0.74rem; color:var(--vs-text-muted); line-height:1.55; margin-bottom:0.45rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.usd-r-meta { display:flex; flex-wrap:wrap; gap:0.3rem; }
+.usd-r-meta .tag, .usd-r-meta .status-badge { font-size:0.62rem; padding:0.15rem 0.5rem; }
+.usd-empty { padding:2rem 1rem; text-align:center; color:var(--vs-text-dim); font-size:0.85rem; }
+.usd-empty .usd-empty-icon { font-size:1.6rem; margin-bottom:0.5rem; opacity:0.5; }
+.usd-footer { padding:0.6rem 1rem; font-size:0.72rem; color:var(--vs-text-dim); border-top:1px solid var(--vs-border); background:rgba(0,0,0,0.2); display:flex; justify-content:space-between; align-items:center; gap:0.5rem; }
+.usd-footer kbd { background:rgba(255,255,255,0.06); border:1px solid var(--vs-border); border-radius:4px; padding:0.1rem 0.4rem; font-size:0.65rem; font-family:inherit; font-weight:600; color:var(--vs-text-muted); }
+
+@media(max-width:900px){
+  .universal-search-input { width:160px; }
+  .universal-search-input:focus { width:220px; }
+  .universal-search-dropdown { width:90vw; right:-1rem; }
+  .universal-search-shortcut { display:none; }
+}
+
+/* SECTIONS */
+.section { max-width:1400px; margin:0 auto; padding:3rem 2rem; }
+.section-header { text-align:center; margin-bottom:1.75rem; }
+.section-label { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; color:var(--vs-blue); margin-bottom:0.5rem; }
+.section-title { font-size:clamp(1.75rem,3vw,2.5rem); font-weight:800; }
+.section-subtitle { color:var(--vs-text-muted); max-width:650px; margin:0.6rem auto 0; }
+
+/* QUARTER TABS */
+.quarter-nav { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:2rem; justify-content:center; }
+.quarter-tab { padding:0.6rem 1.25rem; border-radius:10px; border:1px solid var(--vs-border); background:var(--vs-card); color:var(--vs-text-muted); font-size:0.82rem; font-weight:600; cursor:pointer; transition:all .2s; font-family:inherit; position:relative; }
+.quarter-tab:hover { border-color:var(--vs-blue); color:var(--vs-text); }
+.quarter-tab.active { background:rgba(59,130,246,0.15); border-color:var(--vs-blue); color:var(--vs-blue); }
+.quarter-tab.current::after { content:'NOW'; position:absolute; top:-8px; right:-4px; font-size:0.55rem; font-weight:800; background:var(--vs-green); color:#fff; padding:1px 5px; border-radius:4px; }
+.quarter-tab .tab-count { display:inline-block; min-width:20px; text-align:center; padding:0.1rem 0.4rem; background:rgba(255,255,255,0.08); border-radius:4px; font-size:0.7rem; margin-left:0.4rem; }
+.quarter-tab.active .tab-count { background:rgba(59,130,246,0.25); }
+
+/* QUARTER VIEW SECTIONS */
+.qv-section { margin-bottom:2rem; }
+.qv-section-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; }
+.qv-section-badge { padding:0.4rem 1rem; border-radius:100px; font-size:0.82rem; font-weight:700; color:#fff; }
+.qv-section-line { flex:1; height:1px; background:var(--vs-border); }
+.qv-section-count { font-size:0.82rem; color:var(--vs-text-muted); }
+
+/* CARDS / GRID */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.25rem; margin-bottom:3rem; }
+.kpi-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; transition:all .3s ease; position:relative; overflow:hidden; cursor:pointer; }
+.kpi-card::after { content:'View →'; position:absolute; bottom:8px; right:12px; font-size:0.62rem; font-weight:700; color:var(--vs-blue); opacity:0; transition:opacity .2s; letter-spacing:0.05em; }
+.kpi-card:hover::after { opacity:1; }
+.kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:16px 16px 0 0; }
+.kpi-card.blue::before { background:var(--vs-gradient-2); }
+.kpi-card.purple::before { background:var(--vs-gradient-3); }
+.kpi-card.green::before { background:var(--vs-gradient-4); }
+.kpi-card.amber::before { background:linear-gradient(135deg,var(--vs-amber),var(--vs-red)); }
+.kpi-card:hover { border-color:var(--vs-blue); transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,0.3); }
+.kpi-card .kpi-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; margin-bottom:1rem; }
+.kpi-card.blue .kpi-icon { background:rgba(59,130,246,0.15); }
+.kpi-card.purple .kpi-icon { background:rgba(139,92,246,0.15); }
+.kpi-card.green .kpi-icon { background:rgba(16,185,129,0.15); }
+.kpi-card.amber .kpi-icon { background:rgba(245,158,11,0.15); }
+.kpi-card .kpi-value { font-size:2rem; font-weight:800; margin-bottom:0.25rem; }
+.kpi-card .kpi-label { font-size:0.85rem; color:var(--vs-text-muted); }
+
+/* CHARTS */
+.chart-row { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem; }
+.chart-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; }
+.chart-card.full { grid-column:1/-1; }
+.chart-card h3 { font-size:1rem; font-weight:700; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; }
+.chart-wrapper { position:relative; height:320px; }
+.chart-wrapper.tall { height:400px; }
+
+/* TIMELINE ITEMS */
+.timeline-items { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:1rem; }
+.timeline-item { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:12px; padding:1.25rem; transition:all .3s ease; cursor:pointer; position:relative; }
+.timeline-item:hover { border-color:var(--vs-blue); transform:translateY(-2px); box-shadow:0 4px 24px rgba(0,0,0,0.3); }
+.timeline-item .item-header { display:flex; align-items:flex-start; justify-content:space-between; gap:0.75rem; margin-bottom:0.75rem; }
+.timeline-item .item-title { font-size:0.9rem; font-weight:700; line-height:1.3; flex:1; }
+.timeline-item .item-desc { font-size:0.8rem; color:var(--vs-text-muted); line-height:1.5; margin-bottom:0.75rem; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.timeline-item .item-tags { display:flex; flex-wrap:wrap; gap:0.4rem; }
+
+.tag { padding:0.2rem 0.6rem; border-radius:6px; font-size:0.65rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; }
+.tag-area { background:rgba(59,130,246,0.15); color:var(--vs-blue); }
+.tag-area-phone { background:rgba(59,130,246,0.15); color:var(--vs-blue); }
+.tag-area-ci { background:rgba(139,92,246,0.15); color:var(--vs-purple); }
+.tag-area-crm { background:rgba(245,158,11,0.15); color:var(--vs-amber); }
+.tag-area-ai { background:rgba(239,68,68,0.15); color:var(--vs-red); }
+.tag-area-plat { background:rgba(16,185,129,0.15); color:var(--vs-green); }
+.tag-area-other { background:rgba(100,116,139,0.15); color:var(--vs-text-muted); }
+.tag-quarter { background:rgba(139,92,246,0.12); color:var(--vs-purple); }
+.tag-vertical { background:rgba(100,116,139,0.15); color:var(--vs-text-muted); }
+.tag-geo { background:rgba(6,182,212,0.12); color:var(--vs-cyan); }
+.tag-status { border:1px solid var(--vs-border); color:var(--vs-text-dim); }
+.tag-status.deployed { border-color:rgba(16,185,129,0.4); color:var(--vs-green); background:rgba(16,185,129,0.08); }
+.tag-status.progress { border-color:rgba(59,130,246,0.4); color:var(--vs-blue); background:rgba(59,130,246,0.08); }
+.tag-status.backlog { border-color:rgba(245,158,11,0.4); color:var(--vs-amber); background:rgba(245,158,11,0.08); }
+.tag-status.hold { border-color:rgba(239,68,68,0.4); color:var(--vs-red); background:rgba(239,68,68,0.08); }
+.tag-status.ongoing { border-color:rgba(139,92,246,0.4); color:var(--vs-purple); background:rgba(139,92,246,0.08); }
+
+.status-badge { padding:0.25rem 0.65rem; border-radius:6px; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; white-space:nowrap; flex-shrink:0; border:1px solid; }
+.status-badge.deployed { border-color:rgba(16,185,129,0.4); color:var(--vs-green); background:rgba(16,185,129,0.08); }
+.status-badge.progress { border-color:rgba(59,130,246,0.4); color:var(--vs-blue); background:rgba(59,130,246,0.08); }
+.status-badge.backlog { border-color:rgba(245,158,11,0.4); color:var(--vs-amber); background:rgba(245,158,11,0.08); }
+.status-badge.hold { border-color:rgba(239,68,68,0.4); color:var(--vs-red); background:rgba(239,68,68,0.08); }
+.status-badge.ongoing { border-color:rgba(139,92,246,0.4); color:var(--vs-purple); background:rgba(139,92,246,0.08); }
+.status-badge.tbd { border-color:var(--vs-border); color:var(--vs-text-dim); background:rgba(100,116,139,0.08); }
+
+/* FILTERS */
+.filters-bar { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; padding:0.85rem 1rem; background:var(--vs-card); border:1px solid var(--vs-border); border-radius:12px; align-items:center; }
+.filter-group { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; }
+.filter-label { font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--vs-text-dim); margin-right:0.25rem; }
+.filter-chip { padding:0.35rem 0.75rem; border-radius:8px; border:1px solid var(--vs-border); background:transparent; color:var(--vs-text-muted); font-size:0.75rem; font-weight:500; cursor:pointer; transition:all .2s ease; font-family:inherit; }
+.filter-chip:hover { border-color:var(--vs-blue); color:var(--vs-text); }
+.filter-chip.active { background:rgba(59,130,246,0.15); border-color:var(--vs-blue); color:var(--vs-blue); }
+.search-input { flex:1; min-width:200px; padding:0.5rem 1rem; border-radius:8px; border:1px solid var(--vs-border); background:rgba(0,0,0,0.2); color:var(--vs-text); font-size:0.85rem; font-family:inherit; outline:none; transition:border-color .2s; }
+.search-input:focus { border-color:var(--vs-blue); }
+.search-input::placeholder { color:var(--vs-text-dim); }
+
+/* EXEC HIGHLIGHTS */
+.exec-highlights { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-bottom:3rem; }
+.exec-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:2rem; position:relative; overflow:hidden; }
+.exec-card::after { content:''; position:absolute; top:-50%; right:-50%; width:200px; height:200px; border-radius:50%; opacity:0.07; }
+.exec-card.card-blue::after { background:var(--vs-blue); }
+.exec-card.card-purple::after { background:var(--vs-purple); }
+.exec-card.card-green::after { background:var(--vs-green); }
+.exec-card.card-amber::after { background:var(--vs-amber); }
+.exec-card.card-cyan::after { background:var(--vs-cyan); }
+.exec-card h3 { font-size:1.1rem; font-weight:700; margin-bottom:0.75rem; }
+.exec-card ul { list-style:none; font-size:0.85rem; color:var(--vs-text-muted); }
+.exec-card ul li { padding:0.4rem 0; padding-left:1.25rem; position:relative; }
+.exec-card ul li::before { content:'\2192'; position:absolute; left:0; color:var(--vs-blue); font-weight:700; }
+
+/* PROGRESS BARS */
+.progress-section { margin-bottom:2rem; }
+.progress-row { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; }
+.progress-label { width:160px; font-size:0.85rem; font-weight:600; flex-shrink:0; }
+.progress-bar-bg { flex:1; height:28px; background:rgba(0,0,0,0.3); border-radius:14px; overflow:hidden; }
+.progress-bar-fill { height:100%; border-radius:14px; transition:width 1.5s ease; display:flex; align-items:center; padding-left:12px; font-size:0.75rem; font-weight:700; color:#fff; }
+.progress-count { width:50px; text-align:right; font-size:0.85rem; font-weight:700; color:var(--vs-text-muted); }
+
+/* AREA GRID */
+.area-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+.area-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; transition:all .3s ease; position:relative; }
+.area-card:hover { border-color:var(--vs-blue); box-shadow:0 4px 24px rgba(0,0,0,0.3); }
+.area-card .area-count { cursor:pointer; transition:transform .15s; }
+.area-card .area-count:hover { transform:scale(1.1); }
+.area-card .area-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+.area-card .area-name { font-weight:700; font-size:1rem; }
+.area-card .area-count { background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:800; font-size:1.5rem; }
+.area-card .area-items { list-style:none; max-height:280px; overflow-y:auto; }
+.area-card .area-items li { padding:0.5rem 0; border-bottom:1px solid rgba(30,39,69,0.5); font-size:0.82rem; color:var(--vs-text-muted); display:flex; align-items:center; gap:0.5rem; }
+.area-card .area-items li:last-child { border-bottom:none; }
+.bullet { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.bullet-deployed { background:var(--vs-green); }
+.bullet-progress { background:var(--vs-blue); }
+.bullet-backlog { background:var(--vs-amber); }
+.bullet-hold { background:var(--vs-red); }
+.bullet-ongoing { background:var(--vs-purple); }
+.bullet-tbd { background:var(--vs-text-dim); }
+
+/* VERTICAL CARDS */
+.vertical-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; margin-bottom:2rem; }
+.vert-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; text-align:center; transition:all .3s ease; }
+.vert-card:hover { border-color:var(--vs-blue); transform:translateY(-3px); }
+.vert-card .vert-emoji { font-size:2.5rem; margin-bottom:0.75rem; }
+.vert-card .vert-name { font-weight:700; font-size:1rem; margin-bottom:0.25rem; }
+.vert-card .vert-count { font-size:2rem; font-weight:800; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.vert-card .vert-label { font-size:0.75rem; color:var(--vs-text-dim); }
+
+/* TABLE */
+.data-table-wrapper { overflow-x:auto; border-radius:12px; border:1px solid var(--vs-border); }
+.data-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+.data-table th { background:var(--vs-card); padding:0.85rem 1rem; text-align:left; font-weight:700; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--vs-text-muted); border-bottom:1px solid var(--vs-border); position:sticky; top:0; cursor:pointer; user-select:none; }
+.data-table th:hover { color:var(--vs-blue); }
+.data-table td { padding:0.75rem 1rem; border-bottom:1px solid rgba(30,39,69,0.4); color:var(--vs-text-muted); vertical-align:top; }
+.data-table tr:hover td { background:rgba(59,130,246,0.03); }
+.data-table .offering-name { font-weight:600; color:var(--vs-text); max-width:280px; }
+
+/* ANALYTICS — RICH */
+.analytics-insight-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
+.insight-tile { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:14px; padding:1.25rem; position:relative; overflow:hidden; transition:all .3s ease; cursor:pointer; }
+.insight-tile:hover { border-color:var(--vs-blue); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.3); }
+.insight-tile::after { content:'View →'; position:absolute; bottom:8px; right:12px; font-size:0.62rem; font-weight:700; color:var(--vs-blue); opacity:0; transition:opacity .2s; letter-spacing:0.05em; }
+.insight-tile:hover::after { opacity:1; }
+.insight-tile::before { content:''; position:absolute; top:0; left:0; bottom:0; width:3px; }
+.insight-tile.t-blue::before { background:var(--vs-blue); }
+.insight-tile.t-green::before { background:var(--vs-green); }
+.insight-tile.t-amber::before { background:var(--vs-amber); }
+.insight-tile.t-purple::before { background:var(--vs-purple); }
+.insight-tile .it-label { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--vs-text-dim); margin-bottom:0.5rem; }
+.insight-tile .it-value { font-size:1.85rem; font-weight:800; line-height:1.1; margin-bottom:0.25rem; }
+.insight-tile .it-sub { font-size:0.78rem; color:var(--vs-text-muted); display:flex; align-items:center; gap:0.4rem; }
+.insight-tile .it-trend { display:inline-flex; align-items:center; gap:0.25rem; padding:0.15rem 0.45rem; border-radius:5px; font-size:0.7rem; font-weight:700; }
+.insight-tile .it-trend.up { background:rgba(16,185,129,0.15); color:var(--vs-green); }
+.insight-tile .it-trend.down { background:rgba(239,68,68,0.15); color:var(--vs-red); }
+.insight-tile .it-trend.neutral { background:rgba(100,116,139,0.15); color:var(--vs-text-muted); }
+
+.chart-card.rich { padding:0; overflow:hidden; }
+.chart-card.rich .rich-header { padding:1.25rem 1.5rem 0.75rem; display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; }
+.chart-card.rich .rich-header h3 { font-size:1rem; font-weight:700; margin:0; display:flex; align-items:center; gap:0.5rem; }
+.chart-card.rich .rich-header .rh-sub { font-size:0.75rem; color:var(--vs-text-dim); margin-top:0.25rem; }
+.chart-card.rich .rich-header .rh-badge { font-size:0.7rem; font-weight:700; padding:0.25rem 0.6rem; border-radius:6px; background:rgba(59,130,246,0.12); color:var(--vs-blue); border:1px solid rgba(59,130,246,0.25); white-space:nowrap; }
+.chart-card.rich .rich-body { padding:0.5rem 1.5rem 1rem; }
+.chart-card.rich .rich-footer { padding:0.85rem 1.5rem; border-top:1px solid var(--vs-border); background:rgba(0,0,0,0.15); display:flex; align-items:center; gap:0.6rem; font-size:0.78rem; color:var(--vs-text-muted); }
+.chart-card.rich .rich-footer .rf-icon { font-size:0.95rem; }
+.chart-card.rich .rich-footer .rf-text strong { color:var(--vs-text); font-weight:700; }
+
+.donut-wrap { position:relative; display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; align-items:center; }
+.donut-canvas-wrap { position:relative; height:240px; }
+.donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; }
+.donut-center .dc-num { font-size:2.4rem; font-weight:800; line-height:1; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.donut-center .dc-label { font-size:0.7rem; color:var(--vs-text-dim); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.35rem; font-weight:600; }
+.donut-legend { display:flex; flex-direction:column; gap:0.6rem; }
+.dl-item { display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.6rem; background:rgba(255,255,255,0.02); border:1px solid var(--vs-border); border-radius:8px; transition:all .15s; }
+.dl-item:hover { background:rgba(59,130,246,0.05); border-color:rgba(59,130,246,0.3); }
+.dl-swatch { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+.dl-name { flex:1; font-size:0.78rem; font-weight:600; color:var(--vs-text); }
+.dl-count { font-size:0.78rem; font-weight:700; color:var(--vs-text); }
+.dl-pct { font-size:0.7rem; color:var(--vs-text-dim); min-width:36px; text-align:right; }
+
+.bar-list { display:flex; flex-direction:column; gap:0.85rem; }
+.bar-row { display:grid; grid-template-columns:120px 1fr 60px; align-items:center; gap:0.75rem; }
+.bar-row .br-label { font-size:0.82rem; font-weight:600; color:var(--vs-text); display:flex; align-items:center; gap:0.4rem; }
+.bar-row .br-emoji { font-size:0.9rem; }
+.bar-row .br-track { height:24px; background:rgba(0,0,0,0.3); border-radius:12px; overflow:hidden; position:relative; }
+.bar-row .br-fill { height:100%; border-radius:12px; position:relative; transition:width 1.2s cubic-bezier(.4,0,.2,1); display:flex; align-items:center; justify-content:flex-end; padding-right:0.6rem; min-width:fit-content; }
+.bar-row .br-fill .br-num { font-size:0.7rem; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.4); white-space:nowrap; }
+.bar-row .br-pct { font-size:0.78rem; font-weight:700; color:var(--vs-text-muted); text-align:right; }
+
+.bar-list.stacked .br-track { display:flex; }
+.bar-list.stacked .br-seg { height:100%; transition:width 1.2s ease; position:relative; }
+.bar-list.stacked .br-seg:first-child { border-radius:12px 0 0 12px; }
+.bar-list.stacked .br-seg:last-child { border-radius:0 12px 12px 0; }
+.bar-list.stacked .br-seg:only-child { border-radius:12px; }
+.bar-list.stacked .br-seg-num { font-size:0.65rem; font-weight:700; color:#fff; line-height:24px; padding:0 0.3rem; }
+.stacked-legend { display:flex; flex-wrap:wrap; gap:0.75rem; margin-top:1rem; padding-top:0.85rem; border-top:1px solid var(--vs-border); }
+.sl-chip { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.72rem; color:var(--vs-text-muted); }
+.sl-chip .sl-dot { width:9px; height:9px; border-radius:3px; }
+
+/* Heatmap matrix */
+.matrix-wrap { overflow-x:auto; }
+.matrix-table { width:100%; border-collapse:separate; border-spacing:4px; font-size:0.78rem; }
+.matrix-table th { padding:0.5rem 0.6rem; font-weight:700; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--vs-text-muted); text-align:center; }
+.matrix-table th.row-h { text-align:left; min-width:130px; }
+.matrix-table td { padding:0.5rem 0.6rem; text-align:center; border-radius:8px; font-weight:700; font-variant-numeric:tabular-nums; transition:transform .15s; cursor:default; }
+.matrix-table td.row-h { background:rgba(255,255,255,0.02); border:1px solid var(--vs-border); text-align:left; font-weight:600; color:var(--vs-text); cursor:default; }
+.matrix-table td.cell:hover { transform:scale(1.05); }
+.matrix-table td.total { background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3); color:var(--vs-blue); }
+.matrix-table tr.total-row td { background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); color:var(--vs-blue); }
+
+/* Geo cards */
+.geo-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:0.85rem; }
+.geo-card { background:rgba(255,255,255,0.02); border:1px solid var(--vs-border); border-radius:12px; padding:1rem; text-align:center; position:relative; overflow:hidden; transition:all .25s; cursor:pointer; }
+.geo-card:hover { border-color:var(--vs-cyan); transform:translateY(-3px); box-shadow:0 6px 20px rgba(6,182,212,0.15); }
+.geo-card::after { content:'View →'; position:absolute; bottom:6px; right:10px; font-size:0.58rem; font-weight:700; color:var(--vs-cyan); opacity:0; transition:opacity .2s; letter-spacing:0.05em; }
+.geo-card:hover::after { opacity:1; }
+.geo-card .geo-flag { font-size:2rem; margin-bottom:0.5rem; }
+.geo-card .geo-name { font-size:0.85rem; font-weight:700; color:var(--vs-text); margin-bottom:0.5rem; }
+.geo-card .geo-num { font-size:1.85rem; font-weight:800; background:var(--vs-gradient-2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1; }
+.geo-card .geo-bar { height:4px; background:rgba(0,0,0,0.3); border-radius:2px; margin-top:0.75rem; overflow:hidden; }
+.geo-card .geo-bar-fill { height:100%; background:var(--vs-gradient-2); border-radius:2px; transition:width 1.2s ease; }
+.geo-card .geo-pct { font-size:0.7rem; color:var(--vs-text-dim); margin-top:0.4rem; }
+
+/* VERTICALS — RICH */
+.vert-rich-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
+.vert-rich-card { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; transition:all .3s ease; cursor:pointer; position:relative; overflow:hidden; }
+.vert-rich-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.vert-rich-card.v-dental::before { background:linear-gradient(90deg,#3b82f6,#06b6d4); }
+.vert-rich-card.v-pt::before { background:linear-gradient(90deg,#8b5cf6,#ec4899); }
+.vert-rich-card.v-optom::before { background:linear-gradient(90deg,#10b981,#06b6d4); }
+.vert-rich-card.v-vet::before { background:linear-gradient(90deg,#f59e0b,#ef4444); }
+.vert-rich-card:hover { border-color:var(--vs-blue); transform:translateY(-3px); box-shadow:0 8px 28px rgba(0,0,0,0.4); }
+.vert-rich-card.selected { border-color:var(--vs-blue); box-shadow:0 0 0 1px var(--vs-blue); background:rgba(59,130,246,0.05); }
+.vert-rich-card .vrc-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1rem; }
+.vert-rich-card .vrc-emoji { font-size:2.25rem; line-height:1; }
+.vert-rich-card .vrc-num { font-size:2.4rem; font-weight:800; line-height:1; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.vert-rich-card .vrc-name { font-size:0.95rem; font-weight:700; color:var(--vs-text); margin-bottom:0.15rem; }
+.vert-rich-card .vrc-sub { font-size:0.72rem; color:var(--vs-text-dim); margin-bottom:1rem; }
+.vert-rich-card .vrc-status-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.4rem; margin-bottom:0.85rem; }
+.vert-rich-card .vrc-stat { background:rgba(255,255,255,0.02); border:1px solid var(--vs-border); border-radius:8px; padding:0.4rem 0.5rem; text-align:center; }
+.vert-rich-card .vrc-stat .vs-num { font-size:1rem; font-weight:800; line-height:1; }
+.vert-rich-card .vrc-stat .vs-lbl { font-size:0.6rem; color:var(--vs-text-dim); text-transform:uppercase; letter-spacing:0.05em; margin-top:0.25rem; font-weight:600; }
+.vert-rich-card .vrc-stat.dep .vs-num { color:var(--vs-green); }
+.vert-rich-card .vrc-stat.ip .vs-num { color:var(--vs-blue); }
+.vert-rich-card .vrc-stat.bl .vs-num { color:var(--vs-amber); }
+.vert-rich-card .vrc-progress { height:6px; background:rgba(0,0,0,0.3); border-radius:3px; overflow:hidden; margin-bottom:0.4rem; display:flex; }
+.vert-rich-card .vrc-progress .vp-seg { height:100%; transition:width 1.2s ease; }
+.vert-rich-card .vrc-progress-meta { display:flex; justify-content:space-between; font-size:0.68rem; color:var(--vs-text-dim); margin-bottom:0.85rem; }
+.vert-rich-card .vrc-areas { font-size:0.7rem; color:var(--vs-text-muted); margin-bottom:0.85rem; }
+.vert-rich-card .vrc-areas strong { color:var(--vs-text); font-weight:600; }
+.vert-rich-card .vrc-cta { display:flex; align-items:center; justify-content:space-between; padding-top:0.75rem; border-top:1px solid var(--vs-border); font-size:0.72rem; font-weight:600; color:var(--vs-blue); }
+.vert-rich-card .vrc-cta .vrc-arrow { transition:transform .2s; }
+.vert-rich-card:hover .vrc-cta .vrc-arrow { transform:translateX(3px); }
+
+/* Vert × Area heatmap */
+.vert-heatmap-wrap { overflow-x:auto; }
+
+/* Drilldown panel */
+.vert-drilldown { background:var(--vs-card); border:1px solid var(--vs-border); border-radius:16px; padding:1.5rem; margin-top:2rem; display:none; }
+.vert-drilldown.show { display:block; animation:fadeInUp .4s ease; }
+.vd-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; flex-wrap:wrap; }
+.vd-header .vd-emoji { font-size:2rem; }
+.vd-header .vd-title { flex:1; }
+.vd-header .vd-title h3 { font-size:1.2rem; font-weight:700; margin-bottom:0.2rem; }
+.vd-header .vd-title p { font-size:0.78rem; color:var(--vs-text-muted); }
+.vd-header .vd-close { background:rgba(255,255,255,0.04); border:1px solid var(--vs-border); color:var(--vs-text-muted); padding:0.45rem 0.85rem; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.78rem; }
+.vd-header .vd-close:hover { color:var(--vs-text); border-color:var(--vs-blue); }
+.vd-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.75rem; margin-bottom:1.25rem; }
+.vd-stat { background:rgba(0,0,0,0.2); border:1px solid var(--vs-border); border-radius:10px; padding:0.85rem; text-align:center; cursor:pointer; transition:all .15s; }
+.vd-stat:hover { border-color:var(--vs-blue); transform:translateY(-2px); }
+.vd-stat .vds-n { font-size:1.4rem; font-weight:800; line-height:1; }
+.vd-stat .vds-l { font-size:0.65rem; color:var(--vs-text-dim); text-transform:uppercase; letter-spacing:0.06em; margin-top:0.3rem; font-weight:600; }
+.vd-stat.dep .vds-n { color:var(--vs-green); }
+.vd-stat.ip .vds-n { color:var(--vs-blue); }
+.vd-stat.bl .vds-n { color:var(--vs-amber); }
+.vd-filter-bar { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; align-items:center; }
+.vd-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:0.75rem; max-height:500px; overflow-y:auto; padding-right:0.5rem; }
+
+/* SCROLL ANIMS */
+.animate-on-scroll { opacity:0; transform:translateY(30px); transition:opacity .6s ease,transform .6s ease; }
+.animate-on-scroll.visible { opacity:1; transform:translateY(0); }
+
+/* MODAL */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center; padding:2rem; }
+.modal-overlay.show { display:flex; }
+.modal-content { background:var(--vs-navy); border:1px solid var(--vs-border); border-radius:20px; max-width:700px; width:100%; max-height:85vh; overflow-y:auto; padding:2rem; }
+.modal-content h2 { font-size:1.25rem; margin-bottom:1rem; padding-right:2rem; }
+.modal-close { float:right; background:none; border:none; color:var(--vs-text-muted); font-size:1.5rem; cursor:pointer; }
+.modal-close:hover { color:var(--vs-text); }
+.modal-field { margin-bottom:1rem; }
+.modal-field .field-label { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--vs-text-dim); margin-bottom:0.25rem; }
+.modal-field .field-value { font-size:0.9rem; color:var(--vs-text); line-height:1.6; }
+
+/* FOOTER */
+.dashboard-footer { text-align:center; padding:3rem 2rem; border-top:1px solid var(--vs-border); color:var(--vs-text-dim); font-size:0.8rem; }
+.dashboard-footer .footer-logo { font-size:1.25rem; font-weight:800; background:var(--vs-gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.5rem; }
+
+/* RESPONSIVE */
+@media(max-width:900px) { .exec-highlights{grid-template-columns:1fr;} }
+@media(max-width:768px) { .hero-stats{grid-template-columns:repeat(2,1fr);} .chart-row{grid-template-columns:1fr;} .timeline-items{grid-template-columns:1fr;} .section{padding:2rem 1rem;} .filters-bar{flex-direction:column;align-items:stretch;} .vertical-cards{grid-template-columns:repeat(2,1fr);} .quarter-nav{justify-content:center;} }
+
+/* Empty state */
+.empty-state { text-align:center; padding:3rem; color:var(--vs-text-dim); }
+.empty-state .empty-icon { font-size:3rem; margin-bottom:1rem; opacity:0.5; }
+.empty-state p { font-size:0.9rem; }
+</style>
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+<div class="content-wrapper">
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span> Product Roadmap 2026 &middot; Updated April 2026</div>
+    <h1><span class="gradient-text">VoiceStack</span><br>2026 Roadmap</h1>
+    <p class="subtitle">A unified view of every initiative across Phone System, Call Intelligence, CRM, AI Agents and Platform &mdash; powering the most advanced AI communication stack for healthcare.</p>
+    <div class="hero-stats">
+      <div class="hero-stat" onclick="jumpToTimeline()" title="View all initiatives in Timeline"><div class="number" id="heroTotal">0</div><div class="label">Total Initiatives</div></div>
+      <div class="hero-stat" onclick="jumpToTimeline({status:'Deployed'})" title="Filter Timeline by Deployed"><div class="number" id="heroDeployed">0</div><div class="label">Deployed</div></div>
+      <div class="hero-stat" onclick="jumpToTimeline({status:'In Progress'})" title="Filter Timeline by In Progress"><div class="number" id="heroProgress">0</div><div class="label">In Progress</div></div>
+      <div class="hero-stat" onclick="jumpToTimeline({status:'Backlog'})" title="Filter Timeline by Backlog"><div class="number" id="heroBacklog">0</div><div class="label">In Backlog</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE NAV -->
+<nav class="sticky-nav">
+  <div class="nav-bar">
+    <div class="nav-inner">
+      <span class="nav-logo">VS 2026</span>
+      <button class="nav-btn active" onclick="navigateTo('quarterly-view', this)">Quarter View</button>
+      <button class="nav-btn" onclick="navigateTo('executive', this)">Executive Summary</button>
+      <button class="nav-btn" onclick="navigateTo('analytics', this)">Analytics</button>
+      <button class="nav-btn" onclick="navigateTo('verticals', this)">Verticals</button>
+      <button class="nav-btn" onclick="navigateTo('timeline', this)">Timeline</button>
+      <button class="nav-btn" onclick="navigateTo('areas', this)">By Area</button>
+      <button class="nav-btn" onclick="navigateTo('all-items', this)">Full Registry</button>
+    </div>
+    <div class="universal-search">
+      <span class="universal-search-icon">&#128269;</span>
+      <input type="text" class="universal-search-input" id="universalSearch" placeholder="Search all initiatives..." autocomplete="off" oninput="runUniversalSearch()" onfocus="runUniversalSearch()" onkeydown="universalSearchKey(event)">
+      <span class="universal-search-shortcut" id="usSc">&#8984;K</span>
+      <div class="universal-search-dropdown" id="usDropdown"></div>
+    </div>
+  </div>
+</nav>
+
+<!-- QUARTERLY VIEW -->
+<section class="section" id="quarterly-view">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">Quarter-by-Quarter View</div>
+    <h2 class="section-title">What's Shipping &amp; When</h2>
+    <p class="section-subtitle">Track what's been deployed, what's in progress, and what's coming up. Items are grouped by their target release quarter.</p>
+  </div>
+  <div class="quarter-nav" id="quarterNav"></div>
+  <div id="quarterViewContent"></div>
+</section>
+
+<!-- EXECUTIVE SUMMARY -->
+<section class="section" id="executive">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">Executive Summary</div>
+    <h2 class="section-title">Strategic Pillars of 2026</h2>
+    <p class="section-subtitle">Five focused investment areas designed to accelerate growth, deepen AI capabilities, and expand market reach.</p>
+  </div>
+  <div class="exec-highlights animate-on-scroll">
+    <div class="exec-card card-blue">
+      <h3>&#9742; Phone System &amp; Call Center</h3>
+      <ul>
+        <li>Outbound Dialer V1 with Preview, Power &amp; Voice Broadcast</li>
+        <li>Call Conferencing, Whisper, Barge &amp; Call Flip</li>
+        <li>Simultaneous Multi-Device Ringing</li>
+        <li>Location-Level Call Redirection Modes</li>
+        <li>Emergency Voicemail Delivery System</li>
+        <li>VIP Priority Routing &amp; Sticky Agent</li>
+        <li>Wallboard 2.0 with Historical Analytics</li>
+      </ul>
+    </div>
+    <div class="exec-card card-purple">
+      <h3>&#129302; AI Agents &amp; Call Intelligence</h3>
+      <ul>
+        <li>Inbound Voice Bots for Dental, PT, Vet</li>
+        <li>OneAPI integrations: Open Dental, Eaglesoft, Denticon, Dentally</li>
+        <li>Reimagined Call Scoring with Custom Rubrics</li>
+        <li>PO Improvements &amp; Conversion Probability</li>
+        <li>Agent Voice Detection via Vocal Biometrics</li>
+        <li>Bot Builder Platform &amp; Bot Analytics</li>
+      </ul>
+    </div>
+    <div class="exec-card card-green">
+      <h3>&#128200; CRM &amp; Customer Engagement</h3>
+      <ul>
+        <li>CRM Contact Book Phase 1 with PMS Sync</li>
+        <li>CRM Tags, Linked Contacts &amp; Contact Merging</li>
+        <li>P360 Revamp &amp; Activity Logging</li>
+        <li>Email, WhatsApp &amp; Facebook as Channels</li>
+        <li>Website Forms &amp; Embeddable Chatbot</li>
+        <li>Advanced Automation Workflow Editor</li>
+      </ul>
+    </div>
+    <div class="exec-card card-amber">
+      <h3>&#128279; Integrations &amp; OneAPI</h3>
+      <ul>
+        <li>Bitwerx (Vet) &mdash; opens up ezyVet, Covetrus &amp; more</li>
+        <li>EmpowerEMR (PT) &amp; Prompt EMR Bot Integration</li>
+        <li>Dentrix Ascend / Core Neo Inbound Bot</li>
+        <li>Patient Records Middleware &amp; Caching Layer</li>
+        <li>Vision EHR Integrations #2 &amp; #3</li>
+        <li>Practice Dilly &amp; CareStack Short Code Sync</li>
+      </ul>
+    </div>
+    <div class="exec-card card-cyan">
+      <h3>&#128202; Analytics &amp; Platform</h3>
+      <ul>
+        <li>Appointment Linking &amp; Revenue Analytics</li>
+        <li>DNI Dashboard &amp; Configuration Improvements</li>
+        <li>Bot Analytics &amp; Bot Call Flow Logs</li>
+        <li>Scheduled Reports &amp; Admin Digest</li>
+        <li>Date Range Limits / Data Archival</li>
+        <li>Audit Logs &amp; RBAC for Enterprise</li>
+      </ul>
+    </div>
+    <div class="exec-card card-blue">
+      <h3>&#128241; Mobile &amp; Agent Experience</h3>
+      <ul>
+        <li>Contact Book on Mobile &amp; Tasks on Mobile</li>
+        <li>Search in Mobile App &amp; DND on Mobile</li>
+        <li>Internal Chat between Agents</li>
+        <li>Headset Answering &amp; Call Flip</li>
+        <li>Saved Table Columns &amp; Sorting Preferences</li>
+        <li>Jump Pages in Agent Application</li>
+      </ul>
+    </div>
+  </div>
+  <div class="kpi-grid animate-on-scroll" id="execKpiGrid"></div>
+  <div class="chart-card full animate-on-scroll">
+    <h3>&#128203; Status Distribution</h3>
+    <div class="progress-section" id="statusProgressSection"></div>
+  </div>
+</section>
+
+<!-- ANALYTICS -->
+<section class="section" id="analytics">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">Analytics Deep Dive</div>
+    <h2 class="section-title">Roadmap Composition</h2>
+    <p class="section-subtitle">Visual breakdowns of where the 2026 effort is concentrated &mdash; by area, quarter, geography, and status.</p>
+  </div>
+
+  <!-- INSIGHT STRIP -->
+  <div class="analytics-insight-strip animate-on-scroll" id="insightStrip"></div>
+
+  <!-- ROW 1: STATUS DOUGHNUT + QUARTER PROGRESS -->
+  <div class="chart-row animate-on-scroll">
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#127919; Delivery Status</h3>
+          <div class="rh-sub">Where every initiative stands today</div>
+        </div>
+        <span class="rh-badge" id="statusBadge">—</span>
+      </div>
+      <div class="rich-body">
+        <div class="donut-wrap">
+          <div class="donut-canvas-wrap">
+            <canvas id="chartStatus"></canvas>
+            <div class="donut-center">
+              <div class="dc-num" id="donutCenterNum">0</div>
+              <div class="dc-label">Total</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="statusLegend"></div>
+        </div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#128161;</span>
+        <span class="rf-text" id="statusInsight">—</span>
+      </div>
+    </div>
+
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#128197; Quarterly Cadence</h3>
+          <div class="rh-sub">Volume per quarter, segmented by status</div>
+        </div>
+        <span class="rh-badge" id="quarterBadge">—</span>
+      </div>
+      <div class="rich-body">
+        <div class="bar-list stacked" id="quarterBarList"></div>
+        <div class="stacked-legend" id="quarterLegend"></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#128202;</span>
+        <span class="rf-text" id="quarterInsight">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: GEOGRAPHY + STATUS x AREA HEATMAP -->
+  <div class="chart-row animate-on-scroll">
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#127757; Geographic Reach</h3>
+          <div class="rh-sub">Initiatives launching in each region</div>
+        </div>
+        <span class="rh-badge" id="geoBadge">—</span>
+      </div>
+      <div class="rich-body">
+        <div class="geo-grid" id="geoGrid"></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#127760;</span>
+        <span class="rf-text" id="geoInsight">—</span>
+      </div>
+    </div>
+
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#129668; Area &times; Status Matrix</h3>
+          <div class="rh-sub">A heatmap of progress within each product area</div>
+        </div>
+        <span class="rh-badge">Heatmap</span>
+      </div>
+      <div class="rich-body">
+        <div class="matrix-wrap"><table class="matrix-table" id="matrixTable"></table></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#128293;</span>
+        <span class="rf-text" id="matrixInsight">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 3: AREA RANKING -->
+  <div class="chart-row animate-on-scroll">
+    <div class="chart-card rich full">
+      <div class="rich-header">
+        <div>
+          <h3>&#127981; Initiatives by Area</h3>
+          <div class="rh-sub">Stacked by status &mdash; see how each area is progressing</div>
+        </div>
+        <span class="rh-badge" id="areaBadge">—</span>
+      </div>
+      <div class="rich-body">
+        <div class="bar-list stacked" id="areaBarList"></div>
+        <div class="stacked-legend" id="areaLegend"></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#127942;</span>
+        <span class="rf-text" id="areaInsight">—</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VERTICALS -->
+<section class="section" id="verticals">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">Market Coverage</div>
+    <h2 class="section-title">Vertical-Specific Initiatives</h2>
+    <p class="section-subtitle">Coverage and feature density across the four core healthcare verticals VoiceStack serves. Click any vertical card to drill into its full initiative list.</p>
+  </div>
+
+  <!-- INSIGHT STRIP -->
+  <div class="analytics-insight-strip animate-on-scroll" id="vertInsightStrip"></div>
+
+  <!-- RICH VERTICAL CARDS (clickable for drilldown) -->
+  <div class="vert-rich-grid animate-on-scroll" id="vertRichGrid"></div>
+
+  <!-- DRILLDOWN PANEL -->
+  <div class="vert-drilldown animate-on-scroll" id="vertDrilldown">
+    <div class="vd-header">
+      <div class="vd-emoji" id="vdEmoji"></div>
+      <div class="vd-title">
+        <h3 id="vdTitle"></h3>
+        <p id="vdSub"></p>
+      </div>
+      <button class="vd-close" onclick="closeVertDrilldown()">&times; Close</button>
+    </div>
+    <div class="vd-stats" id="vdStats"></div>
+    <div class="vd-filter-bar" id="vdFilterBar"></div>
+    <div class="vd-list" id="vdList"></div>
+  </div>
+
+  <!-- VERT × AREA HEATMAP + COVERAGE BREAKDOWN -->
+  <div class="chart-row animate-on-scroll">
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#129668; Vertical &times; Area Coverage</h3>
+          <div class="rh-sub">Where each vertical is invested across product areas</div>
+        </div>
+        <span class="rh-badge">Heatmap</span>
+      </div>
+      <div class="rich-body">
+        <div class="vert-heatmap-wrap"><table class="matrix-table" id="vertMatrixTable"></table></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#128293;</span>
+        <span class="rf-text" id="vertMatrixInsight">&mdash;</span>
+      </div>
+    </div>
+
+    <div class="chart-card rich">
+      <div class="rich-header">
+        <div>
+          <h3>&#128202; Status Mix per Vertical</h3>
+          <div class="rh-sub">How far along each vertical is in its 2026 plan</div>
+        </div>
+        <span class="rh-badge" id="vertStatusBadge">&mdash;</span>
+      </div>
+      <div class="rich-body">
+        <div class="bar-list stacked" id="vertStatusBarList"></div>
+        <div class="stacked-legend" id="vertStatusLegend"></div>
+      </div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#127919;</span>
+        <span class="rf-text" id="vertStatusInsight">&mdash;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE COVERAGE CHART -->
+  <div class="chart-row animate-on-scroll">
+    <div class="chart-card rich full">
+      <div class="rich-header">
+        <div>
+          <h3>&#127919; Feature Coverage Across Verticals</h3>
+          <div class="rh-sub">Total initiatives applicable to each vertical (includes "All" tagged items)</div>
+        </div>
+        <span class="rh-badge">Bar Chart</span>
+      </div>
+      <div class="rich-body"><div class="chart-wrapper tall"><canvas id="chartVerticals"></canvas></div></div>
+      <div class="rich-footer">
+        <span class="rf-icon">&#128200;</span>
+        <span class="rf-text" id="vertChartInsight">&mdash;</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="section" id="timeline">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">Full Timeline</div>
+    <h2 class="section-title">All Items by Quarter</h2>
+    <p class="section-subtitle">Filter by status, area, or search by name to find any initiative on the roadmap.</p>
+  </div>
+  <div class="filters-bar animate-on-scroll">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search initiatives..." oninput="renderTimeline()">
+    <div class="filter-group">
+      <span class="filter-label">Status:</span>
+      <button class="filter-chip active" data-filter="status" data-value="all" onclick="setFilter(this)">All</button>
+      <button class="filter-chip" data-filter="status" data-value="Deployed" onclick="setFilter(this)">Deployed</button>
+      <button class="filter-chip" data-filter="status" data-value="In Progress" onclick="setFilter(this)">In Progress</button>
+      <button class="filter-chip" data-filter="status" data-value="Backlog" onclick="setFilter(this)">Backlog</button>
+      <button class="filter-chip" data-filter="status" data-value="On Hold" onclick="setFilter(this)">On Hold</button>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Area:</span>
+      <button class="filter-chip active" data-filter="area" data-value="all" onclick="setFilter(this)">All</button>
+      <button class="filter-chip" data-filter="area" data-value="Phone System" onclick="setFilter(this)">Phone</button>
+      <button class="filter-chip" data-filter="area" data-value="Call Intelligence" onclick="setFilter(this)">CI</button>
+      <button class="filter-chip" data-filter="area" data-value="CRM" onclick="setFilter(this)">CRM</button>
+      <button class="filter-chip" data-filter="area" data-value="AI Agents" onclick="setFilter(this)">AI</button>
+      <button class="filter-chip" data-filter="area" data-value="Platform" onclick="setFilter(this)">Platform</button>
+    </div>
+  </div>
+  <div id="timelineContainer"></div>
+</section>
+
+<!-- AREAS -->
+<section class="section" id="areas">
+  <div class="section-header animate-on-scroll"><div class="section-label">Product Areas</div><h2 class="section-title">Breakdown by Area</h2><p class="section-subtitle">A complete index of every initiative grouped by product area.</p></div>
+  <div class="area-grid animate-on-scroll" id="areaGrid"></div>
+</section>
+
+<!-- FULL REGISTRY -->
+<section class="section" id="all-items">
+  <div class="section-header animate-on-scroll"><div class="section-label">Complete Registry</div><h2 class="section-title" id="registryTitle">All Roadmap Items</h2><p class="section-subtitle">Every item from the 2026 plan in a sortable, searchable table.</p></div>
+  <div class="filters-bar animate-on-scroll">
+    <input type="text" class="search-input" id="tableSearchInput" placeholder="Filter table rows..." oninput="filterTable()">
+  </div>
+  <div class="data-table-wrapper animate-on-scroll">
+    <table class="data-table" id="fullTable">
+      <thead><tr>
+        <th onclick="sortTable(0)">#</th>
+        <th onclick="sortTable(1)">Offering &#8597;</th>
+        <th onclick="sortTable(2)">Area &#8597;</th>
+        <th onclick="sortTable(3)">Quarter &#8597;</th>
+        <th onclick="sortTable(4)">Status &#8597;</th>
+        <th onclick="sortTable(5)">Vertical</th>
+        <th onclick="sortTable(6)">Geo</th>
+      </tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="itemModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h2 id="modalTitle"></h2>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="dashboard-footer">
+  <div class="footer-logo">VoiceStack</div>
+  <p>Product Roadmap 2026 &middot; Internal &middot; Last updated April 2026</p>
+</footer>
+
+</div>
+
+<script>
+const DATA = [{"name": "Text Message Copy (Mobile App)", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Enables users to quickly copy the content of text messages with a single action, making it easy to reuse, share, or reference messages without manual retyping. Key points: One-click option to copy text message content Preserves original message formatting Supports faster sharing and reuse of message"}, {"name": "Data Export to Blob Storage", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Data Export to Blob Storage enables automated export of call, message, and reporting data to a customer-managed blob storage destination. Key points: Scheduled or continuous exports Customer-controlled storage destination Supports analytics, BI, and archival use cases Enables integration with existi"}, {"name": "Enhance Practice FAQ Module to Allow Reordering and Text Styling", "area": "Call Intelligence", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "The current Practice FAQ module in the Admin Panel has several limitations that make it difficult to maintain and update content efficiently. At present, new FAQ entries can only be added at the end of the list, with no ability to insert or reorder entries. This forces users to delete and recreate m"}, {"name": "Intelligent Patient CC Data Redaction", "area": "Call Intelligence", "quarter": "Q1", "status": "Deployed", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Automatically removes sensitive patient credit card data from live calls in real time. Key points: Detects credit card information during calls Redacts or mutes sensitive audio instantly Prevents CC data from being recorded or stored Supports compliance with PCI and privacy standards"}, {"name": "Improve Practice FAQ", "area": "Call Intelligence", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, AUS, UK", "vertical": "Dental", "desc": "We are enhancing the Practice FAQ module to provide a more flexible and efficient content management experience for the implementation team. This includes introducing intuitive drag-and-drop capabilities for reordering sections and text blocks, as well as integrating a Rich Text Editor for enhanced "}, {"name": "Warm Transfer External Dialing", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Allows agents to dial any external number during a warm transfer while keeping the patient on hold. Key points: Dial any external phone number from the Add Agent modal Patient remains on hold during the call Enables true warm transfers to outside parties Reduces transfer friction for agents"}, {"name": "Holiday Calendar : Repeating Options", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Enhances the holiday calendar with flexible monthly repeating options based on specific dates or days of the week. Key points: Repeat holidays by exact date (e.g., 15th of every month) Repeat holidays by day pattern (e.g., first Monday of the month) Reduces manual holiday setup Ensures accurate call"}, {"name": "Audit Logs", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "", "vertical": "", "desc": "Tracks system and user actions for visibility, accountability, and compliance. Key points: Logs key admin and agent actions Supports compliance and investigations Improves operational transparency Largely implemented and in use"}, {"name": "Conversation History Privacy Controls (Phase 1)", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Gives admins granular control over who can see call recordings and transcripts without removing agent context. Key points: Per-agent visibility: Show all calls or only calls the agent handled Restricted extensions: Hide calls from sensitive phones entirely Admin-controlled: Simple toggles, no workfl"}, {"name": "Automated Emergency Voicemail Delivery System", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "Phones, SMS", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Ensures urgent patient voicemails reach the on-call doctor with confirmation and escalation. Key points: Automated outbound calls Doctor must acknowledge (press 1) Retries and backup escalation Full audit trail"}, {"name": "Simultaneous Mobile, SoftPhone & Desk Phone Ringing", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Allows agents to receive calls on mobile, softphone and desk phones at the same time. Key points: Rings multiple active devices simultaneously No manual device switching required Reduces missed calls Supports flexible, hybrid workflows"}, {"name": "Practice Dilly Integrations", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US", "vertical": "Dental", "desc": ""}, {"name": "UX Improvements: Saved Table Columns & Sorting Across Tables", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Improves table usability by enabling consistent sorting across tables and allowing users to save their preferred column configurations. Key points: Unified sorting behavior across tables Save and reuse custom column layouts Reduces repetitive setup Improves data visibility and efficiency"}, {"name": "UX Bug: Page Refresh on Missed & Voicemail Pages", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Fixes unwanted refresh behavior that interrupts voicemail playback and corrects page indexing. Key points: Prevents refresh from stopping active voicemail audio Handles new voicemail arrivals without disrupting playback Fixes incorrect page indexing Improves stability on Missed Calls and Voicemail p"}, {"name": "Call Intelligence : Update Opportunity for Optometry (jan)(US)", "area": "Call Intelligence", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US", "vertical": "Optom", "desc": "identify retail opportunities in calls for optometry customers"}, {"name": "Two party consent", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Plays a brief compliance or informational message to both agent and patient before an outbound call begins. Key points: Audible to both agent and patient Supports recording and compliance disclosures Configurable message content Plays automatically before call connection"}, {"name": "Copy Number in Agent Application", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "All", "desc": ""}, {"name": "Adding a Call Queue Option in the Agent Status", "area": "Phone System", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Adds a Call Queue option in Presence to allow users to quickly filter and view agents who are currently in a queue, improving visibility and operational awareness. Key points: Call Queue filter in Presence view Quickly identify agents assigned to queues Improves real-time monitoring and decision-mak"}, {"name": "Both Agents Name should be there in the Memo Pushed to PMS", "area": "Call Intelligence", "quarter": "Q1", "status": "Deployed", "type": "", "geo": "", "vertical": "Dental, PT, Optom, Vet", "desc": "Minor Issue in case a call path involves multiple agents, both the agents names should be in the memo pushed to the PMS"}, {"name": "Location-Level Call Redirection Modes", "area": "Phone System", "quarter": "Q2", "status": "Deployed", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Instantly changes call behavior for an entire location with one switch. Key points: Single “Mode” toggle No per-device DND setup Ideal for breaks, training, meetings"}, {"name": "Search in Mobile App", "area": "Phone System", "quarter": "Q2", "status": "Deployed", "type": "", "geo": "US, AUS, UK", "vertical": "Dental, PT, Optom, Vet", "desc": "Search using mobile number and name within message and call logs"}, {"name": "Contact Book on Mobile App", "area": "Phone System", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Brings the contact book to the mobile app. Key points: Access contacts on mobile Keeps contact data in sync Supports faster calling and messaging Largely implemented and in progress"}, {"name": "Add Live Agent Status Visibility When Transferring Calls in Softphones.", "area": "Phone System", "quarter": "Q2", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Adds live agent status visibility during call transfers in softphones, allowing users to see agent availability in real time and make informed transfer decisions. Key points: Real-time agent status shown in transfer flow Prevents transfers to unavailable or busy agents Reduces failed or repeated tra"}, {"name": "Fax Rewamp", "area": "Phone System", "quarter": "Q2", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT", "desc": "Introduction of notes, status, delivery status and location filtering"}, {"name": "Location Short Code Sync (CareStack → VoiceStack)", "area": "Phone System", "quarter": "Q2", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "All", "desc": "Fetches and displays CareStack location short codes across VoiceStack to resolve duplicate location names. Key points: Syncs CareStack short codes into VoiceStack Displays short codes wherever locations are selected or shown Disambiguates duplicate location names Avoids changing CareStack location n"}, {"name": "OneAPI Vet : Bitwerx VS Integration (top vet PIMS)", "area": "Call Intelligence", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "US", "vertical": "Vet", "desc": "bitwerx is an msp provider for integrations that opens up integrations to ezyvet, covetrus and other top vet PMS'"}, {"name": "Implement Line Key Configuration Enhancements (Clone, Copy, Reorder)", "area": "Phone System", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "", "vertical": "Dental, PT, Optom, Vet", "desc": "Introduce line key configuration improvements to reduce manual effort during go-lives and device setup for multi-location DSO clients like Paradigm. Features: Clone provisioning profiles to another location Drag-and-drop line key reordering (provisioning profiles) Copy line keys from another device "}, {"name": "Call Volume Heatmap Export by Time Interval", "area": "Phone System", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "", "vertical": "", "desc": "A feature that would allow admins to export a call volume heatmap based on time intervals, which they can use to better assess and optimize staffing levels."}, {"name": "Call Queue Analytics — Add \"Avg Wait Time\" Column to Calls by Queue Report", "area": "Phone System", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "", "vertical": "", "desc": "Adding a new \"Avg Wait Time\" column to the existing Calls by Queue table in Call Analytics"}, {"name": "Wallboard 2.0", "area": "Phone System", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Enhances the existing wallboard by combining real-time and historical agent performance data into a single, comprehensive view. Wallboard 2.0 gives admins deeper visibility into agent activity, call types, and SLA performance—enabling faster monitoring, better decision-making, and more effective wor"}, {"name": "Dynamic Number Insertion (DNI) Dashboard Improvements", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Enhances DNI setup, configuration, and reporting for better campaign tracking. Key points: In-app configuration for Google Tag Manager, Google Ads, and Google Analytics Revamped Campaign Analytics page Improved number addition workflow Streamlined campaign creation flow"}, {"name": "Enable Google Ads Conversion Write-back for All DNI Clients", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Remove hardcoded dependency we did only for Espire Enable conversion event write-back for all DNI clients using Google Ads System should support client-specific configurations for conversion tracking"}, {"name": "Call Intelligence : PO Improvements", "area": "Call Intelligence", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental", "desc": "There are certain flaws in the way we detect potential opportunities and come up with a conversion probability. We need to go from current transcript as context => current + past conversations + treatment plans in PMS as context bucket opportunities into : new patient Tx opp, new patient hygiene opp"}, {"name": "Extension Takeover V2", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Enhances Extension Takeover so that agent-level states such as DND and wrap-up time are properly applied when an extension is taken over, ensuring consistent agent behavior across devices. Key points: Agent-level DND is respected after extension takeover Agent wrap-up time is correctly enforced post"}, {"name": "IVA Bot Call Path", "area": "Phone System", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "", "vertical": "", "desc": "Bringing Bot Call Path for transfer scenarios"}, {"name": "CRM Contact Book - Phase 1", "area": "CRM", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "", "vertical": "", "desc": "CRM Migration: Moving all existing contact book data into the new CRM contactbook Auto-Creation: Automatically creating a contact record whenever a new call, SMS, or email is received. PMS Syncing: Linking CRM contacts directly to their corresponding Patient records in PMS Scoped Uniqueness: Ensurin"}, {"name": "CRM Tags", "area": "CRM", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "", "vertical": "", "desc": "Practice-defined identifiers used to categorize contacts and opportunities"}, {"name": "Location Group V1", "area": "CRM", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "", "vertical": "", "desc": "Data isolation layer built over locations to group data, manage uniqueness, and allow multi-location access."}, {"name": "OneAPI PT : EmpowerEMR VS Integration", "area": "Call Intelligence", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "US", "vertical": "PT", "desc": "Empower is an EMR. We've inked a partnership with them. They open up the integration and warm intros to their customers."}, {"name": "Configration Changes through Chat BOT", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Configation chnages through. ChatBOT"}, {"name": "Internal Chat", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Enables secure, real-time messaging between agents and internal teams. Key points: Agent-to-agent and team messaging Reduces internal calls and interruptions Keeps conversations tied to work context Faster collaboration during live workflows"}, {"name": "IVR Bypass", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Routes known callers directly to the right destination without forcing IVR navigation. Key points: Identifies callers by number or rules Skips menus for trusted or internal callers Reduces call handling time Improves caller experience"}, {"name": "Download Option for Voicemail Recording", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Allows admins and agents to download voicemail recordings directly from the Admin and Agent apps. Key points: Download voicemail audio files easily Available to both admins and agents (based on permissions) Supports reviews, escalations, and documentation needs Eliminates workarounds for accessing v"}, {"name": "SMS enhancements : Sync with PMS", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental", "desc": "Keeps SMS status in sync with the PMS to reduce clutter and missed responses. Key points: Syncs read/unread status with PMS Auto-removes outbound campaign messages from unread/unresponded Improves message triage Reduces agent confusion"}, {"name": "Bot Call Flow Logs", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Provides detailed logs showing how bot-handled calls progress through the call flow. Key points: Tracks bot-answered calls Logs bot transfers to agents Captures bot failures and drop-offs Improves bot monitoring and troubleshooting"}, {"name": "Missed Calls V2 Migration Of All Customers", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Completes the transition from Missed Calls V1 to V2 without data loss. Key points: Sunsets Missed Calls V1 Migrates all customers to V2 Preserves unresponded missed-call data Largely completed and in progress"}, {"name": "Dynamic Number Insertion (DNI) Configuration Improvements", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "All", "desc": "Automatic Addition of Phone numbers in DNI configuration Conversion event complete revamp from current hard coded code for espire"}, {"name": "International Calls Module", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "International Calls Module provides centralized control and visibility over outbound international calling. Key points: Enable or disable international calling per practice Prevent unauthorized or accidental international calls Track international call usage for billing and reporting Improves cost c"}, {"name": "DND on Mobile App", "area": "Phone System", "quarter": "Q2", "status": "Deployed", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Lets agents control Do Not Disturb from the mobile app. Key points: Toggle DND directly on mobile Keeps availability consistent across devices Reduces unwanted call interruptions Largely implemented and in progress"}, {"name": "Message Filter by Source Name", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Adds source-based filtering to messages for better analysis and agent focus. Key points: Source name filter in Admin message analytics Source filter in the Agent application Improves message segmentation Speeds up review and triage"}, {"name": "Bot Analytics", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "We will be revamping the bot dashboard. We plan to introduce a new dashboard for identifying bot performance and could also use it to track bot transfer performance."}, {"name": "Appointment Linking & Revenue Analytcis", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Eliminates visibility gaps by linking phone calls directly to revenue bookings, enabling accurate attribution from inbound conversations to confirmed revenue. Key points: Connects phone calls to downstream bookings Enables call-to-revenue attribution Improves accuracy of revenue reporting Supports b"}, {"name": "Call Widget Revamp & Configuration", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": ""}, {"name": "Contact based Activity logging", "area": "CRM", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "A chronological activity feed based on a contact record, logging all touchpoints including Calls, SMS, Email , and system-generated logs. etc"}, {"name": "Contact Mergging", "area": "CRM", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Funtionality safely merge contact attributes and communications into a single master contact profile."}, {"name": "Linked contacts", "area": "CRM", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Functionality to link individual contacts to each other"}, {"name": "P360 Revamp", "area": "CRM", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "A complete UI/UX modernization of the Patient 360 view to surface Activity log and patient information."}, {"name": "View Call Revamp", "area": "CRM", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Redesign of the call details page interface"}, {"name": "Demo Environment(s) Improvement", "area": "Call Intelligence", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "mainly has to do with the data we choose to populate our demo instances with. It should be realistic conversations, with analytics and volumes that look close to real world."}, {"name": "Customized Call Visibility to Agents", "area": "Phone System", "quarter": "Q3", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Admin can decide what kind of permission they want to give the agents"}, {"name": "Potential opportunity Pipeline & Analytics Update", "area": "CRM", "quarter": "Q3", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "An upgraded visual Kanban board for opportunities with customisable stages and Treatement value assignment"}, {"name": "Stage Automations", "area": "CRM", "quarter": "Q3", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Logic-based triggers that execute actions (alerts, tasks, or emails) immediately when an opportunity changes status."}, {"name": "Po Automatic card Movement", "area": "CRM", "quarter": "Q3", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Automatic movement of Opportunity cards across the pipeline based on specific PMS events,"}, {"name": "In Platform Voice Recording for Sound Clips", "area": "Phone System", "quarter": "Q3", "status": "Backlog", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "A wizard within voicestack's admin configuration settings for practice doctors and staff to record their own voices for sound clips"}, {"name": "Email as a Communication channel", "area": "CRM", "quarter": "Q3", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Introduce email channel as a new communication channel in Voicestack Email Inbox Ender Email Configuration Email Signature"}, {"name": "Location Level Acces controll - contacts", "area": "CRM", "quarter": "Q3", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Permission logic that restricts contact record visibility and editing rights based on the user’s assigned branch or territory."}, {"name": "Website forms", "area": "CRM", "quarter": "Q3", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Customizable, embeddable web forms that automatically create and route new lead records into the CRM upon submission. Automatic field mappings Opportunity creation"}, {"name": "SMS & Email templates", "area": "CRM", "quarter": "Q3", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Allow practices to dsetup email and SMS templates for automated and quick replies"}, {"name": "Email Custom Domain", "area": "CRM", "quarter": "Q3", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Allow practices to setup theie custom domains to create a emails"}, {"name": "Whatsapp as a communication channel", "area": "CRM", "quarter": "Q3", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": ""}, {"name": "Separating Contact Center Module", "area": "Phone System", "quarter": "Q3", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Separate out contact center features in a way that it can be turned on and off collectively and offered as a separate bundle for which we can charge more. Especially when the full fledged outbound dialer is also live."}, {"name": "Facebook messenger as a communication channel", "area": "Other", "quarter": "Q4", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": ""}, {"name": "website Chatbot", "area": "CRM", "quarter": "Q4", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Web site emeddable chatbot to collect handle patient enquires automated replies Auto oppotrtunity creation"}, {"name": "Whatsapp As communication channel", "area": "CRM", "quarter": "Q4", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Integration of WhatsApp as a formal communication channel, allowing for template messages and chat history tracking."}, {"name": "facebook Messenger As communication channel", "area": "CRM", "quarter": "Q4", "status": "Backlog", "type": "", "geo": "", "vertical": "", "desc": "Integration of facebook messenger as a formal communication channel"}, {"name": "Advanced Automation Workflow Editor", "area": "CRM", "quarter": "Q4", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "An advanced drag-and-drop automation builder for creating complex, multi-path customer journeys and internal process automations."}, {"name": "Call Intelligence : Geo Specific Changes and Improvements (on-going)", "area": "Call Intelligence", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental", "desc": "self explanatory"}, {"name": "Imrpove Treatment Categories : Dental (ongoing)", "area": "Call Intelligence", "quarter": "Ongoing", "status": "In Progress", "type": "", "geo": "US, UK, AUS", "vertical": "Dental", "desc": "Improve the accuracy of dental treatment category detection when a call comes in"}, {"name": "PT Prompt Improvements", "area": "Call Intelligence", "quarter": "Ongoing", "status": "In Progress", "type": "", "geo": "US", "vertical": "PT", "desc": "Take PT specific inbound, outbound and VM call intelligence accuracy from alpha stage to the next level factoring in the new data we have collected."}, {"name": "Admin Digest", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Automatically delivers daily, weekly, or monthly summary reports to admins with key call and appointment insights. Key points: Scheduled email digests (daily, weekly, monthly) Includes call activity and appointment data Highlights key metrics and trends Reduces need for manual reporting"}, {"name": "Call Controls : Call Conferencing", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Instantly connects multiple participants on a single call. Key points: One-click add participants No need to hang up or start new calls Ideal for doctor consults, staff collaboration, and patient handoffs"}, {"name": "Call Controls : Call Whisper", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Enables supervisors to join active calls for real-time intervention. Key points: Allows supervisors to join an ongoing agent call Used for escalations, training, or issue resolution Improves customer experience during critical interactions Provides better oversight and quality control"}, {"name": "Call Controls: Call Barging", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Enables supervisors to join active calls for real-time intervention. Key points: Allows supervisors to join an ongoing agent call Used for escalations, training, or issue resolution Improves customer experience during critical interactions Provides better oversight and quality control"}, {"name": "Call Flip", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Allows agents to seamlessly move active calls between devices without interruption. Key points: Transfer live calls between desk phone, mobile, or softphone Maintains call continuity with no drop in connection Supports flexible and mobile agent workflows Improves agent productivity and responsivenes"}, {"name": "Priority Routing : VIP customer", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "if you're a VIP customer, dynamic re-arrangement in the queue level to bring them to the top"}, {"name": "Presence (Softphone Presence in Deskphone)", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Shows softphone user presence directly on desk phones to improve call handling and transfers. Key points: Displays softphone availability on desk phones Indicates Available, Busy, or Offline status Helps staff choose the right person for call transfers Reduces failed or blind transfers"}, {"name": "Call Tree Management : Call Flow Decoupling", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Decouples call flows from phone numbers, allowing one call tree to be reused across multiple numbers. Key points: Attach a single call flow to multiple phone numbers Update call trees once, apply everywhere Ensures consistent caller experience Simplifies call flow management and scaling"}, {"name": "Call Intelligence : Reimagine Call Scoring", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "We need to address certain issues with the way Call Scoring currently works 1. Fixed Rubrics (Practices might want to score based on their own checklist/scorecard) 2. Deeper evaluation methods missing : checklists, yes or no, scale 3. Raw audio not being processed"}, {"name": "Call Intelligence : Exposing Call Scoring Learnings to Agents", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Expose certain elements of call scoring, directly to the agents. Right now, it's an admin only view."}, {"name": "Role-Based Access Control (RBAC)", "area": "CRM", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "All", "desc": "Controls system access by role to ensure users only see and do what they’re permitted to. Key points: Role-based permissions for agents and admins Restricts feature and data access Improves security and compliance Supports scalable user management"}, {"name": "Intermediate Call Status: Attempting", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Introduces an intermediate “Attempting” status to prevent duplicate callbacks. Key points: Adds an Attempting state between Unresponded and Responded Marks calls that are actively being returned Prevents multiple agents from calling back the same contact Reduces duplicate callbacks and confusion"}, {"name": "Answering Call Via Headset", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "Phones", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Pick up incoming calls instantly using your headset. No desk phone or softphone clicks needed."}, {"name": "IDP Unification", "area": "Call Intelligence", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "N.A.", "vertical": "", "desc": "A single deployment in the US is a broader goal that would both save costs and improve operational efficiency. This is achievable if we can unify the Identity Provider (IDP) for the different systems. The current challenge is that while the IDP used in CS VS is the same as the one maintained by the "}, {"name": "Merged Phone Transfer Calls", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Treats phone tree transfer calls as a single, unified call experience. Key points: Merges phone tree transfer calls that are currently counted as separate calls Represents the full caller journey as one call record Improves accuracy of call analytics and reporting Reduces inflated call counts and re"}, {"name": "Platform Stability : Date Range Limits/Data Archival", "area": "Platform", "quarter": "Q2", "status": "In Progress", "type": "", "geo": "N.A.", "vertical": "", "desc": ""}, {"name": "OneAPI Vet : EMR #1 VS Integration", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US", "vertical": "Vet", "desc": "could be a PMS modern cloud PMS vetspire but TBD as of now"}, {"name": "OneAPI PT : Prompt EMR Inbound Bot Integration", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US", "vertical": "PT", "desc": "we have an integration with prompt EMR for VS but not for the bot yet for tasks around appt management"}, {"name": "Dynamic Call Queue Audio", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Plays location-specific audio messages while callers wait in a shared call queue. Key points: Dynamic queue audio based on the caller’s location Works with a single shared call queue Delivers relevant, localized messaging to callers Improves caller experience in centralized call center setups"}, {"name": "Dynamically Changing Ring Groups for an Agent", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "PT, Optom, Vet, Dental", "desc": "Allows agents to dynamically change which ring group they belong to directly from their softphone or mobile interface. Key points: Self-service ring group selection for agents Switch groups without admin intervention Supports mobile and softphone interfaces Adapts to changing workloads and schedules"}, {"name": "OneAPI Dental : Dentrix Ascend Neo Inbound Bot Integration", "area": "AI Agents", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US", "vertical": "Dental", "desc": ""}, {"name": "OneAPI Dental : Dentrix Core Neo Inbound Bot Integration", "area": "AI Agents", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US", "vertical": "Dental", "desc": ""}, {"name": "OneAPI Dental : Open Dental Inbound Bot Integration", "area": "AI Agents", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US", "vertical": "Dental", "desc": ""}, {"name": "OneAPI Dental : Eaglesoft Inbound Bot Integration", "area": "AI Agents", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US", "vertical": "Dental", "desc": ""}, {"name": "OneAPI Dental : Denticon Inbound Bot Integration", "area": "AI Agents", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US", "vertical": "Dental", "desc": ""}, {"name": "OneAPI Dental : Dentally Inbound Bot Integration", "area": "AI Agents", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "UK", "vertical": "Dental", "desc": ""}, {"name": "OneAPI PT : Prompt EMR Inbound Bot Integration", "area": "AI Agents", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US", "vertical": "PT", "desc": ""}, {"name": "OneAPI Enhancement : Patient Records Middleware", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "N.A.", "vertical": "PT", "desc": "The plan is to maintain our own middleware cache-ing layer that stores patient records and metadata and syncs with the practice PMS at a cadence. This is to make our PMS/EHR integrations more robust and fault tolerant."}, {"name": "OneAPI Vision : EMR #2 VS Integration", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US", "vertical": "Optom", "desc": "VS-PMS integration slot for vision EHR #2"}, {"name": "OneAPI Vision : EMR #3 VS Integration", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US", "vertical": "Optom", "desc": "VS-PMS integration slot for vision EHR #3"}, {"name": "Dental : Inbound Voice Bot", "area": "AI Agents", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental", "desc": "general rollout of inbound voice bots market (going beyond closed beta)"}, {"name": "Scheduled Reports", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Enables automated delivery of reports on a recurring schedule, ensuring stakeholders receive timely insights without manual generation or follow-up. Key points: Schedule reports to run automatically Deliver reports via email or predefined destinations Reduces manual reporting effort Ensures consiste"}, {"name": "Bot Builder Platform", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "N.A.", "vertical": "", "desc": "Internal platform to expedite bot creation and management"}, {"name": "Call Intelligence : Fine-Tuned Model Refresh (on-going)", "area": "Call Intelligence", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental", "desc": "improves the performance of certain outputs like new patient vs existing patient, etc"}, {"name": "Auto Status Updates to P.O. Cards", "area": "CRM", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "", "vertical": "Dental, PT, Optom, Vet", "desc": "auto move cards between P.O. swimlanes based on PMS milestones and other conditions. This is a contentious feature but it will be possible to achieve with the phase 2 CRM workflow features"}, {"name": "Jump Pages in Agent Application (Index)", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Improves navigation efficiency in the Agent Application by allowing users to quickly jump between pages instead of navigating sequentially, reducing time spent scrolling or clicking through large data sets. Key points: Jump directly to a specific page Faster navigation across large result sets Reduc"}, {"name": "Transcipt Search (Mutiple Calls)", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Enhances transcript usability by enabling search across multiple call transcripts at once, allowing users to quickly find relevant conversations, keywords, or moments without opening calls individually. Key points: Search across multiple call transcripts simultaneously Quickly locate keywords, phras"}, {"name": "Carestack Style : Tool Tip Walkthroughs", "area": "Other", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "", "desc": "carestack has implemented a way to guide users through UI flows in an interactive manner as a response to a user query. We need something along those lines."}, {"name": "Revamp App Banners for Announcements, Product Releases", "area": "Other", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "", "desc": "improve the way we announce new features to customers."}, {"name": "Sticky Agent", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Route Returning Caller to Agent he/she Has Previously Interacted With"}, {"name": "Agent voice detection", "area": "Call Intelligence", "quarter": "TBD", "status": "On Hold", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "We are introducing Voice Identification for Common Area Devices to automatically identify agents on shared phones using vocal biometrics. After a one-time 10–20 second voice sample setup, the system seamlessly attributes calls to the specific agent rather than a generic device ID."}, {"name": "Task/To-Dos Related Improvements : Sync and UX", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Revamps Tasks & To-Dos with modern task management capabilities for better visibility, collaboration, and execution. Key points: Progress indicators for task status Comments, notes, and file attachments Support for recurring tasks Kanban boards and calendar views Time tracking and basic reporting"}, {"name": "Outbound Dialer V1", "area": "Phone System", "quarter": "Q2", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Automates high-volume outbound calling for reminders, follow-ups. Enables seamless outbound calling on a list. Key points: Preview, Power, and Voice Broadcast modes Voicemail detection and retries CRM/PMS integration via API Compliance-ready"}, {"name": "Tasks on Mobile App", "area": "Phone System", "quarter": "TBD", "status": "Backlog", "type": "", "geo": "US, UK, AUS", "vertical": "Dental, PT, Optom, Vet", "desc": "Brings task management to the mobile app for on-the-go workflows. Key points: View and manage tasks from mobile Stay updated outside the desktop app Improves responsiveness Supports mobile-first teams"}];
+
+const AREA_CFG = {
+  "Phone System":      {cls:"tag-area-phone", color:"#3b82f6", emoji:"☎️"},
+  "Call Intelligence": {cls:"tag-area-ci",   color:"#8b5cf6", emoji:"🧠"},
+  "CRM":               {cls:"tag-area-crm",  color:"#f59e0b", emoji:"📈"},
+  "AI Agents":         {cls:"tag-area-ai",   color:"#ef4444", emoji:"🤖"},
+  "Platform":          {cls:"tag-area-plat", color:"#10b981", emoji:"⚙️"},
+  "Other":             {cls:"tag-area-other",color:"#94a3b8", emoji:"📦"}
+};
+const Q_ORDER = ["Q1","Q2","Q3","Q4","Ongoing","TBD"];
+const Q_LABELS = {"Q1":"Q1 2026","Q2":"Q2 2026","Q3":"Q3 2026","Q4":"Q4 2026","Ongoing":"Ongoing","TBD":"To Be Scheduled"};
+const STATUS_CFG = {
+  "Deployed":    {cls:"deployed", color:"#10b981"},
+  "In Progress": {cls:"progress", color:"#3b82f6"},
+  "Backlog":     {cls:"backlog",  color:"#f59e0b"},
+  "On Hold":     {cls:"hold",     color:"#ef4444"},
+  "Ongoing":     {cls:"ongoing",  color:"#8b5cf6"},
+  "TBD":         {cls:"tbd",      color:"#64748b"}
+};
+const VERTICALS = ["Dental","PT","Optom","Vet"];
+const VERT_EMOJI = {"Dental":"🦷","PT":"🧘","Optom":"👁️","Vet":"🐶"};
+const VERT_LABEL = {"Dental":"Dental","PT":"Physical Therapy","Optom":"Optometry","Vet":"Veterinary"};
+
+// State
+let state = {
+  activeQuarter: "Q2",
+  filterStatus: "all",
+  filterArea: "all",
+  searchTerm: ""
+};
+
+function escHTML(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+function statusClass(s){return (STATUS_CFG[s]||STATUS_CFG.TBD).cls;}
+
+// ============ HERO STATS ============
+function renderHeroStats(){
+  const total = DATA.length;
+  const dep = DATA.filter(d=>d.status==="Deployed").length;
+  const ip = DATA.filter(d=>d.status==="In Progress").length;
+  const bl = DATA.filter(d=>d.status==="Backlog").length;
+  animateNumber("heroTotal", total);
+  animateNumber("heroDeployed", dep);
+  animateNumber("heroProgress", ip);
+  animateNumber("heroBacklog", bl);
+}
+function animateNumber(id, target){
+  const el = document.getElementById(id);
+  let cur = 0;
+  const step = Math.max(1, Math.ceil(target/40));
+  const t = setInterval(()=>{
+    cur += step;
+    if(cur >= target){ cur = target; clearInterval(t); }
+    el.textContent = cur;
+  }, 25);
+}
+
+// ============ UNIVERSAL SEARCH ============
+let usFocusIdx = -1;
+let usCurrentResults = [];
+
+function runUniversalSearch(){
+  const inp = document.getElementById("universalSearch");
+  const dd = document.getElementById("usDropdown");
+  const term = (inp.value||"").toLowerCase().trim();
+  usFocusIdx = -1;
+
+  if(!term){
+    // show recently/popular suggestions
+    usCurrentResults = DATA.filter(d=>d.status==="In Progress").slice(0,6);
+    if(usCurrentResults.length === 0) usCurrentResults = DATA.slice(0,6);
+    renderUsDropdown(true);
+    dd.classList.add("show");
+    return;
+  }
+
+  const results = DATA.map((d,i)=>{
+    const hay = [d.name, d.desc, d.area, d.type, d.vertical, d.geo, d.status, d.quarter].filter(Boolean).join(" ").toLowerCase();
+    if(!hay.includes(term)) return null;
+    // score: name match > desc match > others
+    let score = 0;
+    if((d.name||"").toLowerCase().includes(term)) score += 100;
+    if((d.name||"").toLowerCase().startsWith(term)) score += 50;
+    if((d.desc||"").toLowerCase().includes(term)) score += 30;
+    if((d.area||"").toLowerCase().includes(term)) score += 10;
+    return {d, i, score};
+  }).filter(Boolean).sort((a,b)=>b.score-a.score);
+
+  usCurrentResults = results;
+  renderUsDropdown(false, term);
+  dd.classList.add("show");
+}
+
+function renderUsDropdown(isSuggestion, term){
+  const dd = document.getElementById("usDropdown");
+  const showResults = usCurrentResults.slice(0, 10);
+
+  if(usCurrentResults.length === 0){
+    dd.innerHTML = `<div class="usd-empty"><div class="usd-empty-icon">&#128269;</div>No matches found for "<strong style="color:var(--vs-text)">${escHTML(term||"")}</strong>"<div style="margin-top:0.5rem;font-size:0.75rem;">Try keywords like "outbound", "CRM", "dental", or "deployed"</div></div>`;
+    return;
+  }
+
+  let html = `<div class="usd-header">`;
+  if(isSuggestion){
+    html += `<span>Suggested &mdash; in active development</span>`;
+  } else {
+    html += `<span><strong>${usCurrentResults.length}</strong> match${usCurrentResults.length===1?'':'es'} for "${escHTML(term||"")}"</span>`;
+    html += `<button class="usd-action" onclick="usSeeAllInTimeline()">View all in Timeline &rarr;</button>`;
+  }
+  html += `</div>`;
+
+  showResults.forEach((r, idx)=>{
+    const d = isSuggestion ? r : r.d;
+    const i = isSuggestion ? DATA.indexOf(d) : r.i;
+    const acfg = AREA_CFG[d.area] || AREA_CFG.Other;
+    const sCls = statusClass(d.status);
+    const name = isSuggestion ? escHTML(d.name) : highlight(d.name, term);
+    const desc = isSuggestion ? escHTML(d.desc||"") : highlight(d.desc||"", term);
+    html += `<div class="usd-result" data-idx="${idx}" onclick="usOpenResult(${i})" onmousemove="usFocus(${idx})">
+      <div class="usd-r-top">
+        <div class="usd-r-name">${name}</div>
+        <span class="status-badge ${sCls}">${escHTML(d.status||"TBD")}</span>
+      </div>
+      ${desc?`<div class="usd-r-desc">${desc}</div>`:""}
+      <div class="usd-r-meta">
+        <span class="tag ${acfg.cls}">${escHTML(d.area||"Other")}</span>
+        ${d.quarter?`<span class="tag tag-quarter">${escHTML(Q_LABELS[d.quarter]||d.quarter)}</span>`:""}
+        ${d.vertical?`<span class="tag tag-vertical">${escHTML(d.vertical)}</span>`:""}
+        ${d.geo?`<span class="tag tag-geo">${escHTML(d.geo)}</span>`:""}
+      </div>
+    </div>`;
+  });
+
+  if(usCurrentResults.length > 10){
+    html += `<div class="usd-footer"><span>Showing top 10 of ${usCurrentResults.length}</span><button class="usd-action" onclick="usSeeAllInTimeline()">See all &rarr;</button></div>`;
+  } else {
+    html += `<div class="usd-footer"><span><kbd>&uarr;&darr;</kbd> navigate &middot; <kbd>&crarr;</kbd> open &middot; <kbd>esc</kbd> close</span></div>`;
+  }
+  dd.innerHTML = html;
+}
+
+function highlight(text, term){
+  if(!text) return "";
+  if(!term) return escHTML(text);
+  const safe = escHTML(text);
+  const re = new RegExp("("+escapeRegex(term)+")", "gi");
+  return safe.replace(re, "<mark>$1</mark>");
+}
+function escapeRegex(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+function usOpenResult(dataIdx){
+  closeUsDropdown();
+  document.getElementById("universalSearch").blur();
+  openModal(dataIdx);
+}
+function usFocus(idx){
+  usFocusIdx = idx;
+  document.querySelectorAll(".usd-result").forEach((el,i)=>{
+    el.classList.toggle("focused", i===idx);
+  });
+}
+function universalSearchKey(e){
+  const dd = document.getElementById("usDropdown");
+  if(!dd.classList.contains("show")) return;
+  const items = document.querySelectorAll(".usd-result");
+  if(e.key === "ArrowDown"){
+    e.preventDefault();
+    usFocusIdx = Math.min(usFocusIdx+1, items.length-1);
+    usFocus(usFocusIdx);
+    items[usFocusIdx]?.scrollIntoView({block:"nearest"});
+  } else if(e.key === "ArrowUp"){
+    e.preventDefault();
+    usFocusIdx = Math.max(usFocusIdx-1, 0);
+    usFocus(usFocusIdx);
+    items[usFocusIdx]?.scrollIntoView({block:"nearest"});
+  } else if(e.key === "Enter"){
+    e.preventDefault();
+    if(usFocusIdx >= 0){
+      const r = usCurrentResults[usFocusIdx];
+      const d = r.d || r;
+      const i = r.i !== undefined ? r.i : DATA.indexOf(d);
+      usOpenResult(i);
+    } else if(usCurrentResults.length > 0){
+      usSeeAllInTimeline();
+    }
+  } else if(e.key === "Escape"){
+    closeUsDropdown();
+    document.getElementById("universalSearch").blur();
+  }
+}
+function usSeeAllInTimeline(){
+  const term = document.getElementById("universalSearch").value;
+  closeUsDropdown();
+  document.getElementById("universalSearch").blur();
+  jumpToTimeline({search: term});
+}
+function closeUsDropdown(){
+  document.getElementById("usDropdown").classList.remove("show");
+}
+// Close dropdown when clicking outside
+document.addEventListener("click", e=>{
+  if(!e.target.closest(".universal-search")) closeUsDropdown();
+});
+// Cmd/Ctrl + K to focus
+document.addEventListener("keydown", e=>{
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k"){
+    e.preventDefault();
+    document.getElementById("universalSearch").focus();
+  } else if(e.key === "/" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA"){
+    e.preventDefault();
+    document.getElementById("universalSearch").focus();
+  }
+});
+// Detect platform for shortcut hint
+(function(){
+  const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+  const sc = document.getElementById("usSc");
+  if(sc && !isMac) sc.innerHTML = "Ctrl K";
+})();
+
+// ============ NAV ============
+function navigateTo(id, btn){
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  const el = document.getElementById(id);
+  if(el){
+    const offset = 70;
+    const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({top, behavior:"smooth"});
+  }
+}
+
+// ============ JUMP-TO-VIEW HELPERS ============
+// Apply filters to the timeline section, optionally clear search, then scroll there.
+function jumpToTimeline(opts){
+  opts = opts || {};
+  // Clear search
+  const si = document.getElementById("searchInput");
+  if(si){ si.value = opts.search || ""; }
+  state.searchTerm = si ? si.value : "";
+  state.filterStatus = opts.status || "all";
+  state.filterArea = opts.area || "all";
+
+  // Sync filter chips
+  document.querySelectorAll('.filter-chip[data-filter="status"]').forEach(b=>{
+    b.classList.toggle("active", b.dataset.value === state.filterStatus);
+  });
+  document.querySelectorAll('.filter-chip[data-filter="area"]').forEach(b=>{
+    b.classList.toggle("active", b.dataset.value === state.filterArea);
+  });
+  renderTimeline();
+  scrollToId("timeline");
+}
+function jumpToQuarter(q){
+  if(q && Q_ORDER.includes(q)) setQuarter(q);
+  scrollToId("quarterly-view");
+}
+function jumpToVerticals(vert){
+  scrollToId("verticals");
+  if(vert) setTimeout(()=>openVertDrilldown(vert), 400);
+}
+function scrollToId(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const offset = 70;
+  const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+  window.scrollTo({top, behavior:"smooth"});
+}
+
+// ============ QUARTER VIEW ============
+function renderQuarterNav(){
+  const nav = document.getElementById("quarterNav");
+  const counts = {};
+  DATA.forEach(d=>{
+    const q = d.quarter || "TBD";
+    counts[q] = (counts[q]||0)+1;
+  });
+  let html = "";
+  Q_ORDER.forEach(q=>{
+    if(!counts[q]) return;
+    const isActive = q === state.activeQuarter;
+    const isCurrent = q === "Q2";
+    html += `<button class="quarter-tab ${isActive?'active':''} ${isCurrent?'current':''}" onclick="setQuarter('${q}')">${Q_LABELS[q]}<span class="tab-count">${counts[q]}</span></button>`;
+  });
+  nav.innerHTML = html;
+}
+function setQuarter(q){
+  state.activeQuarter = q;
+  renderQuarterNav();
+  renderQuarterContent();
+}
+function renderQuarterContent(){
+  const container = document.getElementById("quarterViewContent");
+  const items = DATA.filter(d=>(d.quarter||"TBD") === state.activeQuarter);
+  if(!items.length){
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>No items for this quarter.</p></div>`;
+    return;
+  }
+  // group by status
+  const groups = {};
+  items.forEach(d=>{
+    const s = d.status || "TBD";
+    if(!groups[s]) groups[s] = [];
+    groups[s].push(d);
+  });
+  const order = ["Deployed","In Progress","Backlog","On Hold","Ongoing","TBD"];
+  let html = "";
+  order.forEach(s=>{
+    if(!groups[s]) return;
+    const cfg = STATUS_CFG[s] || STATUS_CFG.TBD;
+    html += `<div class="qv-section">
+      <div class="qv-section-header">
+        <span class="qv-section-badge" style="background:${cfg.color}">${s}</span>
+        <span class="qv-section-line"></span>
+        <span class="qv-section-count">${groups[s].length} item${groups[s].length>1?'s':''}</span>
+      </div>
+      <div class="timeline-items">${groups[s].map(itemCard).join("")}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ============ CARD ============
+function itemCard(d){
+  const idx = DATA.indexOf(d);
+  const acfg = AREA_CFG[d.area] || AREA_CFG.Other;
+  const sCls = statusClass(d.status);
+  const tags = [];
+  tags.push(`<span class="tag ${acfg.cls}">${escHTML(d.area||"Other")}</span>`);
+  if(d.quarter) tags.push(`<span class="tag tag-quarter">${escHTML(Q_LABELS[d.quarter]||d.quarter)}</span>`);
+  if(d.geo) tags.push(`<span class="tag tag-geo">${escHTML(d.geo)}</span>`);
+  if(d.vertical) tags.push(`<span class="tag tag-vertical">${escHTML(d.vertical)}</span>`);
+  return `<div class="timeline-item" onclick="openModal(${idx})">
+    <div class="item-header">
+      <div class="item-title">${escHTML(d.name)}</div>
+      <span class="status-badge ${sCls}">${escHTML(d.status||"TBD")}</span>
+    </div>
+    ${d.desc?`<div class="item-desc">${escHTML(d.desc)}</div>`:""}
+    <div class="item-tags">${tags.join("")}</div>
+  </div>`;
+}
+
+// ============ MODAL ============
+function openModal(idx){
+  const d = DATA[idx];
+  if(!d) return;
+  document.getElementById("modalTitle").textContent = d.name;
+  const sCls = statusClass(d.status);
+  let html = "";
+  html += `<div class="modal-field"><div class="field-label">Status</div><div class="field-value"><span class="status-badge ${sCls}">${escHTML(d.status||"TBD")}</span></div></div>`;
+  html += `<div class="modal-field"><div class="field-label">Area</div><div class="field-value">${escHTML(d.area||"-")}</div></div>`;
+  html += `<div class="modal-field"><div class="field-label">Quarter</div><div class="field-value">${escHTML(Q_LABELS[d.quarter]||d.quarter||"TBD")}</div></div>`;
+  if(d.desc) html += `<div class="modal-field"><div class="field-label">Description</div><div class="field-value">${escHTML(d.desc)}</div></div>`;
+  if(d.type) html += `<div class="modal-field"><div class="field-label">Type</div><div class="field-value">${escHTML(d.type)}</div></div>`;
+  if(d.geo) html += `<div class="modal-field"><div class="field-label">Geography</div><div class="field-value">${escHTML(d.geo)}</div></div>`;
+  if(d.vertical) html += `<div class="modal-field"><div class="field-label">Vertical</div><div class="field-value">${escHTML(d.vertical)}</div></div>`;
+  document.getElementById("modalBody").innerHTML = html;
+  document.getElementById("itemModal").classList.add("show");
+}
+function closeModal(){
+  document.getElementById("itemModal").classList.remove("show");
+}
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeModal(); });
+
+// ============ EXEC SUMMARY KPIs & PROGRESS ============
+function renderExecKpis(){
+  const counts = {};
+  DATA.forEach(d=>{
+    const a = d.area || "Other";
+    counts[a] = (counts[a]||0)+1;
+  });
+  const order = ["Phone System","Call Intelligence","CRM","AI Agents","Platform","Other"];
+  const colors = ["blue","purple","green","amber","blue","purple"];
+  const icons = ["☎️","🧠","📈","🤖","⚙️","📦"];
+  let html = "";
+  order.forEach((a,i)=>{
+    if(!counts[a]) return;
+    const safeArea = a.replace(/'/g,"\\'");
+    html += `<div class="kpi-card ${colors[i]}" onclick="jumpToTimeline({area:'${safeArea}'})" title="Filter Timeline by ${a}"><div class="kpi-icon">${icons[i]}</div><div class="kpi-value">${counts[a]}</div><div class="kpi-label">${a} Items</div></div>`;
+  });
+  document.getElementById("execKpiGrid").innerHTML = html;
+}
+
+function renderStatusProgress(){
+  const counts = {};
+  DATA.forEach(d=>{
+    const s = d.status || "TBD";
+    counts[s] = (counts[s]||0)+1;
+  });
+  const total = DATA.length;
+  const order = [["Deployed","var(--vs-gradient-4)"],["In Progress","var(--vs-gradient-2)"],["Backlog","linear-gradient(135deg,var(--vs-amber),var(--vs-red))"],["On Hold","linear-gradient(135deg,#ef4444,#ec4899)"],["Ongoing","linear-gradient(135deg,#8b5cf6,#ec4899)"]];
+  let html = "";
+  order.forEach(([s,grad])=>{
+    const c = counts[s]||0;
+    const pct = total ? Math.round((c/total)*100) : 0;
+    html += `<div class="progress-row">
+      <div class="progress-label">${s}</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%;background:${grad}" data-target-width="${pct}%">${c}</div></div>
+      <div class="progress-count">${pct}%</div>
+    </div>`;
+  });
+  document.getElementById("statusProgressSection").innerHTML = html;
+  // animate
+  setTimeout(()=>{
+    document.querySelectorAll(".progress-bar-fill").forEach(bar=>{
+      bar.style.width = bar.dataset.targetWidth || "0%";
+    });
+  }, 300);
+}
+
+// ============ CHARTS ============
+function chartBase(extra){
+  return Object.assign({
+    plugins:{legend:{labels:{color:"#94a3b8",font:{family:"Inter",size:11}},position:"bottom"}},
+    responsive:true,
+    maintainAspectRatio:false
+  }, extra||{});
+}
+function gridStyle(){
+  return {grid:{color:"rgba(30,39,69,0.5)"},ticks:{color:"#94a3b8",font:{family:"Inter",size:11}}};
+}
+
+function renderCharts(){
+  renderInsightStrip();
+  renderStatusDonut();
+  renderQuarterStacked();
+  renderGeoCards();
+  renderMatrix();
+  renderAreaStacked();
+}
+
+// ============ INSIGHT STRIP ============
+function renderInsightStrip(){
+  const total = DATA.length;
+  const dep = DATA.filter(d=>d.status==="Deployed").length;
+  const ip = DATA.filter(d=>d.status==="In Progress").length;
+  const bl = DATA.filter(d=>d.status==="Backlog").length;
+  const depPct = Math.round((dep/total)*100);
+  const ipPct = Math.round((ip/total)*100);
+  const inFlight = dep + ip;
+  const inFlightPct = Math.round((inFlight/total)*100);
+
+  // Top area
+  const aCounts = {};
+  DATA.forEach(d=>{ const a=d.area||"Other"; aCounts[a]=(aCounts[a]||0)+1; });
+  const topArea = Object.entries(aCounts).sort((a,b)=>b[1]-a[1])[0];
+  const topAreaPct = Math.round((topArea[1]/total)*100);
+
+  // Active quarter
+  const q2Count = DATA.filter(d=>d.quarter==="Q2").length;
+  const q2Pct = Math.round((q2Count/total)*100);
+
+  document.getElementById("insightStrip").innerHTML = `
+    <div class="insight-tile t-blue" onclick="jumpToTimeline()" title="View all initiatives">
+      <div class="it-label">Total Initiatives</div>
+      <div class="it-value">${total}</div>
+      <div class="it-sub">Tracked across the 2026 plan</div>
+    </div>
+    <div class="insight-tile t-green" onclick="jumpToTimeline({status:'Deployed'})" title="View Deployed initiatives">
+      <div class="it-label">Shipped or Shipping</div>
+      <div class="it-value">${inFlight}</div>
+      <div class="it-sub"><span class="it-trend up">&#9650; ${inFlightPct}%</span> Deployed + In Progress</div>
+    </div>
+    <div class="insight-tile t-purple" onclick="jumpToTimeline({area:'${topArea[0].replace(/'/g,"\\'")}'})" title="Filter Timeline by ${topArea[0]}">
+      <div class="it-label">Top Investment Area</div>
+      <div class="it-value">${topArea[0]}</div>
+      <div class="it-sub">${topArea[1]} items &middot; ${topAreaPct}% of roadmap</div>
+    </div>
+    <div class="insight-tile t-amber" onclick="jumpToQuarter('Q2')" title="View Q2 in Quarter View">
+      <div class="it-label">Q2 Active Push</div>
+      <div class="it-value">${q2Count}</div>
+      <div class="it-sub">${q2Pct}% of plan in current quarter</div>
+    </div>`;
+}
+
+// ============ STATUS DONUT + LEGEND ============
+function renderStatusDonut(){
+  const sCounts = {};
+  DATA.forEach(d=>{ const s=d.status||"TBD"; sCounts[s]=(sCounts[s]||0)+1; });
+  const order = ["Deployed","In Progress","Backlog","On Hold","Ongoing","TBD"].filter(s=>sCounts[s]);
+  const total = DATA.length;
+  const colors = order.map(s=>(STATUS_CFG[s]||{}).color || "#64748b");
+
+  new Chart(document.getElementById("chartStatus"), {
+    type:"doughnut",
+    data:{labels:order, datasets:[{data:order.map(s=>sCounts[s]), backgroundColor:colors, borderColor:"#0f1629", borderWidth:3, hoverOffset:8}]},
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      cutout:"68%",
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:"#0f1629",
+          borderColor:"#1e2745",
+          borderWidth:1,
+          padding:12,
+          titleColor:"#e2e8f0",
+          bodyColor:"#94a3b8",
+          callbacks:{
+            label:(ctx)=>{
+              const v = ctx.parsed;
+              const pct = ((v/total)*100).toFixed(1);
+              return ` ${v} items (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  document.getElementById("donutCenterNum").textContent = total;
+
+  // Custom legend
+  const legend = order.map(s=>{
+    const c = sCounts[s];
+    const pct = ((c/total)*100).toFixed(1);
+    const color = (STATUS_CFG[s]||{}).color || "#64748b";
+    return `<div class="dl-item">
+      <span class="dl-swatch" style="background:${color}"></span>
+      <span class="dl-name">${s}</span>
+      <span class="dl-count">${c}</span>
+      <span class="dl-pct">${pct}%</span>
+    </div>`;
+  }).join("");
+  document.getElementById("statusLegend").innerHTML = legend;
+
+  // Badge & insight
+  const dep = sCounts["Deployed"]||0;
+  const depPct = Math.round((dep/total)*100);
+  document.getElementById("statusBadge").textContent = `${depPct}% delivered`;
+  const bl = sCounts["Backlog"]||0;
+  const ip = sCounts["In Progress"]||0;
+  document.getElementById("statusInsight").innerHTML = `<strong>${dep}</strong> initiatives deployed and <strong>${ip}</strong> currently in active development &mdash; with <strong>${bl}</strong> queued in backlog for upcoming quarters.`;
+}
+
+// ============ QUARTER STACKED BARS ============
+function renderQuarterStacked(){
+  const total = DATA.length;
+  const statuses = [
+    {key:"Deployed", color:"#10b981"},
+    {key:"In Progress", color:"#3b82f6"},
+    {key:"Backlog", color:"#f59e0b"},
+    {key:"On Hold", color:"#ef4444"}
+  ];
+  const quarters = Q_ORDER.filter(q=>DATA.some(d=>d.quarter===q));
+  const counts = {};
+  quarters.forEach(q=>{
+    counts[q] = {};
+    statuses.forEach(s=>{
+      counts[q][s.key] = DATA.filter(d=>d.quarter===q && d.status===s.key).length;
+    });
+    counts[q].total = statuses.reduce((sum,s)=>sum+counts[q][s.key],0);
+  });
+  const maxQ = Math.max(...quarters.map(q=>counts[q].total));
+
+  let html = quarters.map(q=>{
+    const qt = counts[q].total;
+    const widthPct = (qt/maxQ)*100;
+    const segs = statuses.filter(s=>counts[q][s.key]>0).map(s=>{
+      const segPct = (counts[q][s.key]/qt)*100;
+      return `<div class="br-seg" style="width:${segPct}%;background:${s.color};" title="${s.key}: ${counts[q][s.key]}"><span class="br-seg-num">${counts[q][s.key]}</span></div>`;
+    }).join("");
+    return `<div class="bar-row">
+      <div class="br-label">${Q_LABELS[q]}</div>
+      <div class="br-track" style="width:${widthPct}%; min-width:${widthPct}%; max-width:${widthPct}%;">${segs}</div>
+      <div class="br-pct">${qt}</div>
+    </div>`;
+  }).join("");
+  // Override: render full-width bars but background showing only stacked segs scaled to proportional max
+  html = quarters.map(q=>{
+    const qt = counts[q].total;
+    const trackPct = (qt/maxQ)*100;
+    const segs = statuses.filter(s=>counts[q][s.key]>0).map(s=>{
+      const segPct = (counts[q][s.key]/qt)*100;
+      return `<div class="br-seg" style="width:${segPct}%;background:${s.color};" title="${s.key}: ${counts[q][s.key]}"><span class="br-seg-num">${counts[q][s.key]}</span></div>`;
+    }).join("");
+    return `<div class="bar-row">
+      <div class="br-label">${Q_LABELS[q]}</div>
+      <div class="br-track"><div style="display:flex;width:${trackPct}%;height:100%;border-radius:12px;overflow:hidden;">${segs}</div></div>
+      <div class="br-pct">${qt}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("quarterBarList").innerHTML = html;
+
+  document.getElementById("quarterLegend").innerHTML = statuses.map(s=>
+    `<span class="sl-chip"><span class="sl-dot" style="background:${s.color}"></span>${s.key}</span>`
+  ).join("");
+
+  // Badge & insight
+  const peak = quarters.reduce((a,b)=>counts[a].total>counts[b].total?a:b);
+  document.getElementById("quarterBadge").textContent = `Peak: ${Q_LABELS[peak]}`;
+  document.getElementById("quarterInsight").innerHTML = `<strong>${Q_LABELS[peak]}</strong> is the heaviest delivery window with <strong>${counts[peak].total}</strong> initiatives. ${quarters.includes("TBD")?`<strong>${counts.TBD?.total||0}</strong> items are still unscheduled and need quarter assignment.`:""}`;
+}
+
+// ============ GEO CARDS ============
+function renderGeoCards(){
+  const gCounts = {US:0, UK:0, AUS:0, "N.A.":0};
+  DATA.forEach(d=>{
+    const g = (d.geo||"").trim();
+    if(!g) return;
+    if(g.includes("US")) gCounts.US++;
+    if(g.includes("UK")) gCounts.UK++;
+    if(g.includes("AUS")) gCounts.AUS++;
+    if(g.includes("N.A")) gCounts["N.A."]++;
+  });
+  const max = Math.max(...Object.values(gCounts));
+  const total = DATA.length;
+  const flags = {US:"🇺🇸", UK:"🇬🇧", AUS:"🇦🇺", "N.A.":"🌐"};
+  const names = {US:"United States", UK:"United Kingdom", AUS:"Australia", "N.A.":"Internal / N/A"};
+  const html = Object.entries(gCounts).filter(([_,v])=>v>0).map(([k,v])=>{
+    const pct = Math.round((v/total)*100);
+    const fillPct = max ? Math.round((v/max)*100) : 0;
+    return `<div class="geo-card" onclick="jumpToTimeline({search:'${k}'})" title="Filter Timeline by ${names[k]||k}">
+      <div class="geo-flag">${flags[k]||"🌍"}</div>
+      <div class="geo-name">${names[k]||k}</div>
+      <div class="geo-num">${v}</div>
+      <div class="geo-bar"><div class="geo-bar-fill" style="width:0%" data-target="${fillPct}%"></div></div>
+      <div class="geo-pct">${pct}% of roadmap</div>
+    </div>`;
+  }).join("");
+  document.getElementById("geoGrid").innerHTML = html;
+
+  document.getElementById("geoBadge").textContent = `${Object.values(gCounts).filter(v=>v>0).length} regions`;
+  const top = Object.entries(gCounts).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById("geoInsight").innerHTML = `<strong>${names[top[0]]||top[0]}</strong> leads with <strong>${top[1]}</strong> initiatives. Multi-region rollouts ensure feature parity across English-speaking markets.`;
+
+  setTimeout(()=>{
+    document.querySelectorAll(".geo-bar-fill").forEach(b=>{ b.style.width = b.dataset.target; });
+  }, 200);
+}
+
+// ============ AREA × STATUS MATRIX ============
+function renderMatrix(){
+  const areas = Object.keys(AREA_CFG).filter(a=>DATA.some(d=>d.area===a));
+  const statuses = ["Deployed","In Progress","Backlog","On Hold"];
+  const grid = {};
+  areas.forEach(a=>{
+    grid[a] = {};
+    statuses.forEach(s=>{ grid[a][s] = DATA.filter(d=>d.area===a && d.status===s).length; });
+    grid[a].total = statuses.reduce((sum,s)=>sum+grid[a][s],0);
+  });
+  // Normalize for color intensity per status column
+  const maxCol = {};
+  statuses.forEach(s=>{ maxCol[s] = Math.max(...areas.map(a=>grid[a][s])); });
+
+  let html = `<thead><tr><th class="row-h">Product Area</th>`;
+  statuses.forEach(s=>{
+    const color = (STATUS_CFG[s]||{}).color || "#64748b";
+    html += `<th><span style="display:inline-flex;align-items:center;gap:0.35rem;"><span style="width:8px;height:8px;border-radius:2px;background:${color};display:inline-block"></span>${s}</span></th>`;
+  });
+  html += `<th>Total</th></tr></thead><tbody>`;
+
+  areas.forEach(a=>{
+    html += `<tr><td class="row-h">${(AREA_CFG[a]||{}).emoji||""} ${a}</td>`;
+    statuses.forEach(s=>{
+      const v = grid[a][s];
+      const intensity = maxCol[s] ? v/maxCol[s] : 0;
+      const color = (STATUS_CFG[s]||{}).color || "#64748b";
+      const bg = v ? `background:${color}${alphaHex(0.12 + intensity*0.45)};border:1px solid ${color}${alphaHex(0.3+intensity*0.4)};color:${color};` : `background:rgba(255,255,255,0.02);border:1px solid var(--vs-border);color:var(--vs-text-dim);`;
+      html += `<td class="cell" style="${bg}">${v||"—"}</td>`;
+    });
+    html += `<td class="total">${grid[a].total}</td></tr>`;
+  });
+
+  // Total row
+  html += `<tr class="total-row"><td class="row-h">Totals</td>`;
+  statuses.forEach(s=>{
+    const v = areas.reduce((sum,a)=>sum+grid[a][s],0);
+    html += `<td>${v}</td>`;
+  });
+  html += `<td>${DATA.length}</td></tr></tbody>`;
+  document.getElementById("matrixTable").innerHTML = html;
+
+  // Insight
+  let hottestArea = areas[0], hottestVal = 0;
+  areas.forEach(a=>{ if(grid[a]["In Progress"]>hottestVal){ hottestVal = grid[a]["In Progress"]; hottestArea = a; } });
+  document.getElementById("matrixInsight").innerHTML = `<strong>${hottestArea}</strong> has the most active development with <strong>${hottestVal}</strong> in-progress items. Cells are shaded by relative intensity within each status column.`;
+}
+
+function alphaHex(a){
+  const v = Math.round(a*255).toString(16).padStart(2,"0");
+  return v;
+}
+
+// ============ AREA STACKED BARS ============
+function renderAreaStacked(){
+  const statuses = [
+    {key:"Deployed", color:"#10b981"},
+    {key:"In Progress", color:"#3b82f6"},
+    {key:"Backlog", color:"#f59e0b"},
+    {key:"On Hold", color:"#ef4444"}
+  ];
+  const areas = Object.keys(AREA_CFG).filter(a=>DATA.some(d=>d.area===a))
+    .map(a=>({
+      name:a,
+      emoji:(AREA_CFG[a]||{}).emoji||"",
+      counts:Object.fromEntries(statuses.map(s=>[s.key, DATA.filter(d=>d.area===a && d.status===s.key).length])),
+      total:DATA.filter(d=>d.area===a).length
+    }))
+    .sort((a,b)=>b.total-a.total);
+
+  const max = Math.max(...areas.map(a=>a.total));
+  const totalAll = DATA.length;
+
+  const html = areas.map(a=>{
+    const trackPct = (a.total/max)*100;
+    const segs = statuses.filter(s=>a.counts[s.key]>0).map(s=>{
+      const segPct = (a.counts[s.key]/a.total)*100;
+      return `<div class="br-seg" style="width:${segPct}%;background:${s.color};" title="${s.key}: ${a.counts[s.key]}"><span class="br-seg-num">${a.counts[s.key]}</span></div>`;
+    }).join("");
+    const pct = Math.round((a.total/totalAll)*100);
+    return `<div class="bar-row">
+      <div class="br-label"><span class="br-emoji">${a.emoji}</span>${a.name}</div>
+      <div class="br-track"><div style="display:flex;width:${trackPct}%;height:100%;border-radius:12px;overflow:hidden;">${segs}</div></div>
+      <div class="br-pct">${a.total} &middot; ${pct}%</div>
+    </div>`;
+  }).join("");
+  document.getElementById("areaBarList").innerHTML = html;
+
+  document.getElementById("areaLegend").innerHTML = statuses.map(s=>
+    `<span class="sl-chip"><span class="sl-dot" style="background:${s.color}"></span>${s.key}</span>`
+  ).join("");
+
+  document.getElementById("areaBadge").textContent = `${areas.length} areas`;
+  const top = areas[0];
+  document.getElementById("areaInsight").innerHTML = `<strong>${top.name}</strong> dominates the roadmap with <strong>${top.total}</strong> initiatives (${Math.round((top.total/totalAll)*100)}% of total). Bars are sorted by volume and color-coded by delivery status.`;
+}
+
+// ============ VERTICALS CHART (multi-series) ============
+function renderVerticalsChart(){
+  const allCount = VERTICALS.map(v=>vertItems(v).length);
+  const specificCount = VERTICALS.map(v=>vertSpecific(v).length);
+  const labels = VERTICALS.map(v=>VERT_LABEL[v]);
+  new Chart(document.getElementById("chartVerticals"), {
+    type:"bar",
+    data:{
+      labels,
+      datasets:[
+        {label:"Total Applicable", data:allCount, backgroundColor:"rgba(59,130,246,0.7)", borderColor:"#3b82f6", borderWidth:2, borderRadius:8},
+        {label:"Vertical-Specific", data:specificCount, backgroundColor:"rgba(139,92,246,0.7)", borderColor:"#8b5cf6", borderWidth:2, borderRadius:8}
+      ]
+    },
+    options: chartBase({
+      plugins:{
+        legend:{position:"top", labels:{color:"#94a3b8",font:{family:"Inter",size:11},padding:14}},
+        tooltip:{backgroundColor:"#0f1629",borderColor:"#1e2745",borderWidth:1,padding:12,callbacks:{label:(ctx)=>` ${ctx.dataset.label}: ${ctx.parsed.y} initiatives`}}
+      },
+      scales:{x:gridStyle(),y:Object.assign({beginAtZero:true},gridStyle())}
+    })
+  });
+  const top = labels[allCount.indexOf(Math.max(...allCount))];
+  const totalAll = allCount.reduce((a,b)=>a+b,0);
+  const totalSpec = specificCount.reduce((a,b)=>a+b,0);
+  document.getElementById("vertChartInsight").innerHTML = `<strong>${top}</strong> sees the broadest applicability. Across all four verticals there are <strong>${totalAll}</strong> applicable initiative-vertical mappings, of which <strong>${totalSpec}</strong> are vertical-specific (the rest are universal "All" items).`;
+}
+
+// ============ VERTICALS — RICH ============
+function vertItems(v){
+  return DATA.filter(d=>(d.vertical||"").includes(v) || (d.vertical||"").toLowerCase()==="all");
+}
+function vertSpecific(v){
+  // items that mention this vertical AND aren't tagged "All"
+  return DATA.filter(d=>{
+    const t = (d.vertical||"").toLowerCase();
+    return t.includes(v.toLowerCase()) && t !== "all";
+  });
+}
+
+function renderVerticalsAll(){
+  renderVertInsightStrip();
+  renderVertRichCards();
+  renderVertMatrix();
+  renderVertStatusMix();
+  renderVerticalsChart();
+}
+
+function renderVertInsightStrip(){
+  const total = DATA.length;
+  const taggedAll = DATA.filter(d=>(d.vertical||"").toLowerCase()==="all").length;
+  const crossVert = DATA.filter(d=>{
+    const t = (d.vertical||"").toLowerCase();
+    if(t==="all") return true;
+    let n=0;
+    VERTICALS.forEach(v=>{ if(t.includes(v.toLowerCase())) n++; });
+    return n >= 3;
+  }).length;
+  const counts = VERTICALS.map(v=>({v, n: vertItems(v).length}));
+  const top = counts.sort((a,b)=>b.n-a.n)[0];
+  const untagged = DATA.filter(d=>!d.vertical || d.vertical.trim()==="").length;
+
+  document.getElementById("vertInsightStrip").innerHTML = `
+    <div class="insight-tile t-blue" onclick="scrollToId('verticals')" title="Scroll to vertical cards">
+      <div class="it-label">Verticals Served</div>
+      <div class="it-value">${VERTICALS.length}</div>
+      <div class="it-sub">Dental &middot; PT &middot; Optometry &middot; Veterinary</div>
+    </div>
+    <div class="insight-tile t-green" onclick="jumpToVerticals('${top.v}')" title="Drill into ${VERT_LABEL[top.v]}">
+      <div class="it-label">Most Invested</div>
+      <div class="it-value">${VERT_LABEL[top.v]}</div>
+      <div class="it-sub"><span class="it-trend up">${top.n}</span> applicable initiatives</div>
+    </div>
+    <div class="insight-tile t-purple" onclick="jumpToTimeline({search:'all'})" title="View cross-vertical items in Timeline">
+      <div class="it-label">Cross-Vertical Features</div>
+      <div class="it-value">${crossVert}</div>
+      <div class="it-sub">Applicable to 3+ verticals or all</div>
+    </div>
+    <div class="insight-tile t-amber" onclick="jumpToTimeline({search:'all'})" title="View Universal Items in Timeline">
+      <div class="it-label">Universal Items</div>
+      <div class="it-value">${taggedAll}</div>
+      <div class="it-sub">Tagged "All" verticals</div>
+    </div>`;
+}
+
+function renderVertRichCards(){
+  const total = DATA.length;
+  const cls = {Dental:"v-dental", PT:"v-pt", Optom:"v-optom", Vet:"v-vet"};
+  const subtitle = {Dental:"Practices &amp; DSOs", PT:"Clinics &amp; Therapy Networks", Optom:"Vision Practices", Vet:"Animal Hospitals"};
+
+  const html = VERTICALS.map(v=>{
+    const items = vertItems(v);
+    const dep = items.filter(d=>d.status==="Deployed").length;
+    const ip = items.filter(d=>d.status==="In Progress").length;
+    const bl = items.filter(d=>d.status==="Backlog").length;
+    const sum = dep+ip+bl;
+    const depPct = sum ? (dep/sum)*100 : 0;
+    const ipPct = sum ? (ip/sum)*100 : 0;
+    const blPct = sum ? (bl/sum)*100 : 0;
+    // Top areas for this vertical
+    const aCounts = {};
+    items.forEach(d=>{ const a=d.area||"Other"; aCounts[a]=(aCounts[a]||0)+1; });
+    const topAreas = Object.entries(aCounts).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([a,n])=>`<strong>${a}</strong> (${n})`).join(", ");
+
+    return `<div class="vert-rich-card ${cls[v]}" data-vert="${v}" onclick="openVertDrilldown('${v}')">
+      <div class="vrc-head">
+        <div>
+          <div class="vrc-emoji">${VERT_EMOJI[v]}</div>
+        </div>
+        <div class="vrc-num">${items.length}</div>
+      </div>
+      <div class="vrc-name">${VERT_LABEL[v]}</div>
+      <div class="vrc-sub">${subtitle[v]}</div>
+      <div class="vrc-status-row">
+        <div class="vrc-stat dep"><div class="vs-num">${dep}</div><div class="vs-lbl">Deployed</div></div>
+        <div class="vrc-stat ip"><div class="vs-num">${ip}</div><div class="vs-lbl">Active</div></div>
+        <div class="vrc-stat bl"><div class="vs-num">${bl}</div><div class="vs-lbl">Backlog</div></div>
+      </div>
+      <div class="vrc-progress">
+        <div class="vp-seg" style="width:${depPct}%;background:#10b981" title="Deployed"></div>
+        <div class="vp-seg" style="width:${ipPct}%;background:#3b82f6" title="In Progress"></div>
+        <div class="vp-seg" style="width:${blPct}%;background:#f59e0b" title="Backlog"></div>
+      </div>
+      <div class="vrc-progress-meta">
+        <span>Progress: ${Math.round(depPct)}%</span>
+        <span>${Math.round((items.length/total)*100)}% of roadmap</span>
+      </div>
+      <div class="vrc-areas">Top areas: ${topAreas || '<em>None yet</em>'}</div>
+      <div class="vrc-cta">
+        <span>View all ${items.length} initiatives</span>
+        <span class="vrc-arrow">&rarr;</span>
+      </div>
+    </div>`;
+  }).join("");
+  document.getElementById("vertRichGrid").innerHTML = html;
+}
+
+// Drilldown
+let vdState = {vert:null, status:"all", area:"all"};
+function openVertDrilldown(v){
+  vdState = {vert:v, status:"all", area:"all"};
+  document.querySelectorAll(".vert-rich-card").forEach(c=>{
+    c.classList.toggle("selected", c.dataset.vert===v);
+  });
+  document.getElementById("vdEmoji").textContent = VERT_EMOJI[v];
+  document.getElementById("vdTitle").textContent = `${VERT_LABEL[v]} Initiatives`;
+  const items = vertItems(v);
+  const specific = vertSpecific(v);
+  document.getElementById("vdSub").innerHTML = `${items.length} total &middot; ${specific.length} vertical-specific &middot; ${items.length - specific.length} universal`;
+
+  // stats
+  const dep = items.filter(d=>d.status==="Deployed").length;
+  const ip = items.filter(d=>d.status==="In Progress").length;
+  const bl = items.filter(d=>d.status==="Backlog").length;
+  document.getElementById("vdStats").innerHTML = `
+    <div class="vd-stat dep" onclick="vdStatClick('Deployed')" title="Filter list to Deployed"><div class="vds-n">${dep}</div><div class="vds-l">Deployed</div></div>
+    <div class="vd-stat ip" onclick="vdStatClick('In Progress')" title="Filter list to In Progress"><div class="vds-n">${ip}</div><div class="vds-l">In Progress</div></div>
+    <div class="vd-stat bl" onclick="vdStatClick('Backlog')" title="Filter list to Backlog"><div class="vds-n">${bl}</div><div class="vds-l">Backlog</div></div>
+    <div class="vd-stat" onclick="vdStatClick('all')" title="Show all"><div class="vds-n">${items.length}</div><div class="vds-l">Total</div></div>`;
+
+  // filter bar
+  const areas = Array.from(new Set(items.map(d=>d.area))).filter(Boolean);
+  let fb = `<span class="filter-label">Status:</span>
+    <button class="filter-chip active" onclick="vdFilter('status','all',this)">All</button>
+    <button class="filter-chip" onclick="vdFilter('status','Deployed',this)">Deployed</button>
+    <button class="filter-chip" onclick="vdFilter('status','In Progress',this)">In Progress</button>
+    <button class="filter-chip" onclick="vdFilter('status','Backlog',this)">Backlog</button>
+    <span class="filter-label" style="margin-left:0.5rem">Area:</span>
+    <button class="filter-chip active" onclick="vdFilter('area','all',this)">All</button>`;
+  areas.forEach(a=>{
+    fb += `<button class="filter-chip" onclick="vdFilter('area','${a.replace(/'/g,"\\'")}',this)">${a}</button>`;
+  });
+  document.getElementById("vdFilterBar").innerHTML = fb;
+
+  renderVdList();
+  const panel = document.getElementById("vertDrilldown");
+  panel.classList.add("show");
+  setTimeout(()=>{
+    panel.scrollIntoView({behavior:"smooth", block:"start"});
+  }, 50);
+}
+function vdStatClick(status){
+  vdState.status = status;
+  // Sync chip UI
+  document.querySelectorAll("#vdFilterBar .filter-chip").forEach(c=>{
+    const oc = c.getAttribute("onclick")||"";
+    if(oc.includes("'status',")){
+      c.classList.toggle("active", oc.includes(`'${status}'`));
+    }
+  });
+  renderVdList();
+}
+function vdFilter(kind, val, btn){
+  vdState[kind] = val;
+  // toggle active for siblings within the same kind row
+  const allChips = document.querySelectorAll("#vdFilterBar .filter-chip");
+  allChips.forEach(c=>{
+    const oc = c.getAttribute("onclick")||"";
+    if(oc.includes(`'${kind}',`)) c.classList.remove("active");
+  });
+  btn.classList.add("active");
+  renderVdList();
+}
+function renderVdList(){
+  const items = vertItems(vdState.vert).filter(d=>{
+    if(vdState.status!=="all" && d.status!==vdState.status) return false;
+    if(vdState.area!=="all" && d.area!==vdState.area) return false;
+    return true;
+  });
+  const list = document.getElementById("vdList");
+  if(!items.length){
+    list.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📭</div><p>No items match these filters.</p></div>`;
+    return;
+  }
+  list.innerHTML = items.map(itemCard).join("");
+}
+function closeVertDrilldown(){
+  document.getElementById("vertDrilldown").classList.remove("show");
+  document.querySelectorAll(".vert-rich-card").forEach(c=>c.classList.remove("selected"));
+}
+
+// Vertical × Area Heatmap
+function renderVertMatrix(){
+  const areas = Object.keys(AREA_CFG).filter(a=>DATA.some(d=>d.area===a));
+  const grid = {};
+  VERTICALS.forEach(v=>{
+    grid[v] = {};
+    const items = vertItems(v);
+    areas.forEach(a=>{ grid[v][a] = items.filter(d=>d.area===a).length; });
+    grid[v].total = areas.reduce((s,a)=>s+grid[v][a],0);
+  });
+  const maxCol = {};
+  areas.forEach(a=>{ maxCol[a] = Math.max(...VERTICALS.map(v=>grid[v][a])); });
+
+  let html = `<thead><tr><th class="row-h">Vertical</th>`;
+  areas.forEach(a=>{
+    const color = (AREA_CFG[a]||{}).color || "#64748b";
+    html += `<th><span style="display:inline-flex;align-items:center;gap:0.35rem;"><span style="width:8px;height:8px;border-radius:2px;background:${color};display:inline-block"></span>${a}</span></th>`;
+  });
+  html += `<th>Total</th></tr></thead><tbody>`;
+  VERTICALS.forEach(v=>{
+    html += `<tr><td class="row-h">${VERT_EMOJI[v]} ${VERT_LABEL[v]}</td>`;
+    areas.forEach(a=>{
+      const val = grid[v][a];
+      const intensity = maxCol[a] ? val/maxCol[a] : 0;
+      const color = (AREA_CFG[a]||{}).color || "#64748b";
+      const bg = val ? `background:${color}${alphaHex(0.10+intensity*0.45)};border:1px solid ${color}${alphaHex(0.25+intensity*0.4)};color:${color};` : `background:rgba(255,255,255,0.02);border:1px solid var(--vs-border);color:var(--vs-text-dim);`;
+      html += `<td class="cell" style="${bg}">${val||"—"}</td>`;
+    });
+    html += `<td class="total">${grid[v].total}</td></tr>`;
+  });
+  html += `<tr class="total-row"><td class="row-h">Totals</td>`;
+  areas.forEach(a=>{
+    const v = VERTICALS.reduce((s,vv)=>s+grid[vv][a],0);
+    html += `<td>${v}</td>`;
+  });
+  const grand = VERTICALS.reduce((s,vv)=>s+grid[vv].total,0);
+  html += `<td>${grand}</td></tr></tbody>`;
+  document.getElementById("vertMatrixTable").innerHTML = html;
+
+  // insight: hottest cell
+  let hotCell = {v:null, a:null, n:0};
+  VERTICALS.forEach(v=>areas.forEach(a=>{
+    if(grid[v][a]>hotCell.n) hotCell = {v, a, n:grid[v][a]};
+  }));
+  document.getElementById("vertMatrixInsight").innerHTML = `<strong>${VERT_LABEL[hotCell.v]}</strong> &times; <strong>${hotCell.a}</strong> is the densest pairing with <strong>${hotCell.n}</strong> initiatives. Cells shaded by intensity within each area column.`;
+}
+
+// Status mix per vertical (stacked bars)
+function renderVertStatusMix(){
+  const statuses = [
+    {key:"Deployed", color:"#10b981"},
+    {key:"In Progress", color:"#3b82f6"},
+    {key:"Backlog", color:"#f59e0b"},
+    {key:"On Hold", color:"#ef4444"}
+  ];
+  const rows = VERTICALS.map(v=>{
+    const items = vertItems(v);
+    const counts = Object.fromEntries(statuses.map(s=>[s.key, items.filter(d=>d.status===s.key).length]));
+    return {v, counts, total:items.length};
+  }).sort((a,b)=>b.total-a.total);
+  const max = Math.max(...rows.map(r=>r.total));
+  const totalAll = DATA.length;
+
+  const html = rows.map(r=>{
+    const trackPct = max ? (r.total/max)*100 : 0;
+    const segs = statuses.filter(s=>r.counts[s.key]>0).map(s=>{
+      const segPct = r.total ? (r.counts[s.key]/r.total)*100 : 0;
+      return `<div class="br-seg" style="width:${segPct}%;background:${s.color};" title="${s.key}: ${r.counts[s.key]}"><span class="br-seg-num">${r.counts[s.key]}</span></div>`;
+    }).join("");
+    return `<div class="bar-row">
+      <div class="br-label"><span class="br-emoji">${VERT_EMOJI[r.v]}</span>${VERT_LABEL[r.v]}</div>
+      <div class="br-track"><div style="display:flex;width:${trackPct}%;height:100%;border-radius:12px;overflow:hidden;">${segs}</div></div>
+      <div class="br-pct">${r.total}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("vertStatusBarList").innerHTML = html;
+
+  document.getElementById("vertStatusLegend").innerHTML = statuses.map(s=>
+    `<span class="sl-chip"><span class="sl-dot" style="background:${s.color}"></span>${s.key}</span>`
+  ).join("");
+
+  document.getElementById("vertStatusBadge").textContent = `${VERTICALS.length} verticals`;
+  // most progressed vertical
+  let bestPct = 0, bestV = rows[0].v;
+  rows.forEach(r=>{
+    const p = r.total ? r.counts.Deployed/r.total : 0;
+    if(p>bestPct){ bestPct = p; bestV = r.v; }
+  });
+  document.getElementById("vertStatusInsight").innerHTML = `<strong>${VERT_LABEL[bestV]}</strong> has the highest deployed share at <strong>${Math.round(bestPct*100)}%</strong>. Bars are sorted by total volume.`;
+}
+
+// ============ TIMELINE & FILTERS ============
+function setFilter(btn){
+  const filter = btn.dataset.filter;
+  const value = btn.dataset.value;
+  document.querySelectorAll(`.filter-chip[data-filter="${filter}"]`).forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  if(filter==="status") state.filterStatus = value;
+  if(filter==="area") state.filterArea = value;
+  renderTimeline();
+}
+function getFiltered(){
+  const term = (document.getElementById("searchInput")?.value || "").toLowerCase();
+  return DATA.filter(d=>{
+    if(state.filterStatus !== "all" && d.status !== state.filterStatus) return false;
+    if(state.filterArea !== "all" && d.area !== state.filterArea) return false;
+    if(term){
+      const hay = [d.name,d.desc,d.area,d.type,d.vertical,d.geo].join(" ").toLowerCase();
+      if(!hay.includes(term)) return false;
+    }
+    return true;
+  });
+}
+function renderTimeline(){
+  const items = getFiltered();
+  const container = document.getElementById("timelineContainer");
+  if(!items.length){
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><p>No items match your filters.</p></div>`;
+    return;
+  }
+  // group by quarter
+  const groups = {};
+  items.forEach(d=>{
+    const q = d.quarter||"TBD";
+    if(!groups[q]) groups[q] = [];
+    groups[q].push(d);
+  });
+  let html = "";
+  Q_ORDER.forEach(q=>{
+    if(!groups[q]) return;
+    html += `<div class="qv-section">
+      <div class="qv-section-header">
+        <span class="qv-section-badge" style="background:var(--vs-gradient-1)">${Q_LABELS[q]}</span>
+        <span class="qv-section-line"></span>
+        <span class="qv-section-count">${groups[q].length} item${groups[q].length>1?'s':''}</span>
+      </div>
+      <div class="timeline-items">${groups[q].map(itemCard).join("")}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ============ AREA BREAKDOWN ============
+function renderAreas(){
+  const container = document.getElementById("areaGrid");
+  const order = ["Phone System","Call Intelligence","CRM","AI Agents","Platform","Other"];
+  let html = "";
+  order.forEach(a=>{
+    const items = DATA.filter(d=>d.area===a);
+    if(!items.length) return;
+    const lis = items.map(d=>{
+      const cls = "bullet-" + statusClass(d.status);
+      return `<li><span class="bullet ${cls}"></span>${escHTML(d.name)}</li>`;
+    }).join("");
+    const safeArea = a.replace(/'/g,"\\'");
+    html += `<div class="area-card">
+      <div class="area-header">
+        <div class="area-name">${(AREA_CFG[a]||{}).emoji||""} ${a}</div>
+        <div class="area-count" onclick="jumpToTimeline({area:'${safeArea}'})" title="Filter Timeline by ${a}">${items.length}</div>
+      </div>
+      <ul class="area-items">${lis}</ul>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ============ TABLE ============
+function renderTable(){
+  const tbody = document.getElementById("tableBody");
+  const rows = DATA.map((d,i)=>{
+    const sCls = statusClass(d.status);
+    return `<tr>
+      <td>${i+1}</td>
+      <td class="offering-name">${escHTML(d.name)}</td>
+      <td>${escHTML(d.area||"-")}</td>
+      <td>${escHTML(Q_LABELS[d.quarter]||d.quarter||"-")}</td>
+      <td><span class="status-badge ${sCls}">${escHTML(d.status||"TBD")}</span></td>
+      <td>${escHTML(d.vertical||"-")}</td>
+      <td>${escHTML(d.geo||"-")}</td>
+    </tr>`;
+  }).join("");
+  tbody.innerHTML = rows;
+  document.getElementById("registryTitle").textContent = `All ${DATA.length} Roadmap Items`;
+}
+function filterTable(){
+  const term = (document.getElementById("tableSearchInput").value||"").toLowerCase();
+  const rows = document.querySelectorAll("#tableBody tr");
+  rows.forEach(tr=>{
+    const txt = tr.textContent.toLowerCase();
+    tr.style.display = txt.includes(term) ? "" : "none";
+  });
+}
+let sortDir = {};
+function sortTable(col){
+  const tbody = document.getElementById("tableBody");
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+  sortDir[col] = !sortDir[col];
+  const dir = sortDir[col] ? 1 : -1;
+  rows.sort((a,b)=>{
+    let av = a.cells[col].textContent.trim();
+    let bv = b.cells[col].textContent.trim();
+    const an = parseFloat(av), bn = parseFloat(bv);
+    if(!isNaN(an) && !isNaN(bn)) return (an-bn)*dir;
+    return av.localeCompare(bv) * dir;
+  });
+  rows.forEach(r=>tbody.appendChild(r));
+}
+
+// ============ SCROLL ANIMS ============
+function setupScrollAnimations(){
+  const els = document.querySelectorAll(".animate-on-scroll");
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add("visible");
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:0, rootMargin:"0px 0px -10% 0px"});
+  els.forEach(el=>{
+    io.observe(el);
+    // Safety net: if an element is already past the viewport on load, mark visible
+    const r = el.getBoundingClientRect();
+    if(r.top < window.innerHeight) el.classList.add("visible");
+  });
+}
+
+// Active nav highlight on scroll
+function setupActiveNav(){
+  const sections = ["quarterly-view","executive","analytics","verticals","timeline","areas","all-items"];
+  const buttons = document.querySelectorAll(".nav-btn");
+  window.addEventListener("scroll", ()=>{
+    let active = sections[0];
+    sections.forEach(s=>{
+      const el = document.getElementById(s);
+      if(el && el.getBoundingClientRect().top < 150) active = s;
+    });
+    buttons.forEach(b=>{
+      const oc = b.getAttribute("onclick")||"";
+      b.classList.toggle("active", oc.includes(`'${active}'`));
+    });
+  });
+}
+
+// ============ INIT ============
+function init(){
+  renderHeroStats();
+  renderQuarterNav();
+  renderQuarterContent();
+  renderExecKpis();
+  renderStatusProgress();
+  renderTimeline();
+  renderAreas();
+  renderTable();
+  setupScrollAnimations();
+  setupActiveNav();
+  // charts after a tick to ensure canvases are sized
+  setTimeout(()=>{
+    renderCharts();
+    renderVerticalsAll();
+  }, 100);
+}
+init();
+</script>
+</body>
+</html>
